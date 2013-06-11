@@ -1,0 +1,63 @@
+body{
+	background-color: #57BEAD;
+	width: 1024px;
+	height: 768px;
+	margin: 0 auto;
+}
+
+.container{
+	background-color: black;
+	border: 2px solid #015245;
+	height: 100%;
+	width: 100%;
+}
+
+UL{
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+UL li{
+	padding: 20px;
+	border: 2px solid black;
+}
+  
+.menu{
+	background-color: #047F6A;
+	position: relative;
+}
+
+.menu UL li{
+	display: inline-block;
+	margin: 5px;
+}
+
+.draw{
+}
+
+.select, .move, .resize, .copy{
+	position: absolute;
+	left:0px;
+	top:0px;
+	visibility: hidden;
+}
+
+.toolbar{
+	background-color: #047F6A;
+	width: 20%;
+	margin: 100px 0;
+	float: left;
+}
+
+canvas{
+	background-color: #F0E9EB;
+	border:2px solid #015245;
+	margin: 20px;
+}
+
+.canvasContainer{
+	width: 80%;
+	float: left;
+	text-align: center;
+}
