@@ -50,6 +50,10 @@ UL li{
 	float: left;
 }
 
+.highlightTool{
+	background-color: #57BEAD;
+}
+
 canvas{
 	background-color: #F0E9EB;
 	border:2px solid #015245;
