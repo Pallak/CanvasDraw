@@ -10,7 +10,7 @@ $(document).ready(function(){
 			$(this).hide();
 		});
 		var menuName = item.text();
-		$("."+menuName).show();
+		$("."+menuName).slideDown();
 	}
 	/*******************************/
 
@@ -23,9 +23,9 @@ $(document).ready(function(){
 	function selectItem (item) {
 		if(item.index()!=5){
 			$(".toolbar li").each(function() {
-				$(this).removeClass("highlightTool");
+				$(this).css("background-color", "#047F6A");
 			});
-			item.addClass("highlightTool");
+			item.css("background-color", "#57BEAD");
 			showSelectedMenu(item);
 		}
 		/* if item is "clear canvas" treat it 
@@ -40,6 +40,20 @@ $(document).ready(function(){
 	$(".toolbar li").click(function(){
 		selectItem($(this));
 	});
-	/*******************************/
 	
+	
+	/*******************************
+	Animate toolbar when hovering over
+	any item in menu
+	*******************************/
+	$(".toolbar ul li").hover(function(){
+		$(this).animate({width:250, duration:200}, "fast");
+	});
+	/*******************************
+	 Retract the item once the mouse
+	 left the item in the menu
+	 ************************/
+	$(".toolbar ul li").mouseleave(function(){
+		$(this).animate({width:165, duration:200}, "fast");
+	});
 });
