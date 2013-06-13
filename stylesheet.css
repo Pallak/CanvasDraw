@@ -12,6 +12,11 @@ body{
 	width: 100%;
 }
 
+header{
+	background-color: black;
+	min-height: 10%;
+}
+
 UL{
 	list-style-type: none;
 	margin: 0;
@@ -42,6 +47,10 @@ UL li{
 	width: 20%;
 	margin: 100px 0;
 	float: left;
+}
+
+.toolbar UL li{
+	width: 165px;
 }
 
 .highlightTool{
