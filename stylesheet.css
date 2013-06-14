@@ -3,6 +3,21 @@ body{
 	width: 1024px;
 	height: 768px;
 	margin: 0 auto;
+
+	/***********************************
+	Prevents all elements from being 
+	selected and highlighted on clicking 
+	down and draggin the mouse.
+	Especially visible for 
+	canvas on chrome.
+	***********************************/
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	user-select: none;
 }
 
 .container{
