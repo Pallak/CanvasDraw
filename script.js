@@ -27,6 +27,25 @@ Shape.prototype.selected = false;
 Shape.prototype.setSelected = function(value) { this.selected = value;}
 Shape.prototype.isSelected = function() { return this.selected;}
 
+
+function clearCanvas() {
+  // Remove all the circles.
+  shapes = [];
+
+  // Update the display.
+  drawShapes();
+}
+
+function drawShapes() {
+  // Clear the canvas.
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Go through all the shapes.
+  for(var i=0; i<shapes.length; i++) {
+    var shape = shapes[i];
+    shape.draw();
+  }
+}
 /*******************************
 Rectangle object methods
 Inherited from Shape
@@ -83,6 +102,7 @@ function selectItem (item) {
 	/* If item is "clear canvas" treat it 
 	as a button*/
 	else{
+		clearCanvas();
 		}
 }
 
@@ -171,12 +191,17 @@ $(document).ready(function(){
 			if(needNewShape == 1){
 				shape = new Rectangle(canvas, currentCoords.x, currentCoords.y, 0, 0);
 				needNewShape = 0;		
+			} else{
+				shapes.pop();
 			}
 
 			shape.xEnd = currentCoords.x - shape.x;
 			shape.yEnd = currentCoords.y - shape.y;
 
-			shape.draw();
+			shapes.push(shape);
+			// shape.draw();
+			drawShapes();
+
 		} else {
 			needNewShape = 1;
 		}
