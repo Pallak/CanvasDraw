@@ -1,0 +1,4 @@
+Stuff we can mention in our report
+- event.which not working in firefox
+- what happens if you click down in the canvas and move the mouse out of the canvas area - it is the same for pixlr except when you move in (after clicking up outside) and click down, the shape disappears.
+- weird bug where you click too often and move too fast that it misses the click up event - may have something to do with the canvas getting "selected"
