@@ -179,7 +179,7 @@ $(document).ready(function(){
 	});
 
 	$("#canvas").mouseout(function(e) {
-		// $("#canvas").trigger("mouseup");
+		$("#canvas").trigger("mouseup");
 	});
 	/*****************************************
 	This function draws a shape while mouse is 
