@@ -171,12 +171,16 @@ $(document).ready(function(){
 	// Functions to set the mouse pressed flag
 	$("#canvas").mouseup(function(e) {
 		isMouseDown=0;
+		needNewShape = 1;
 	});
 
 	$("#canvas").mousedown(function(e) {
 		isMouseDown = 1;
 	});
 
+	$("#canvas").mouseout(function(e) {
+		// $("#canvas").trigger("mouseup");
+	});
 	/*****************************************
 	This function draws a shape while mouse is 
 	moving and pressed down. On mouse up event,
@@ -199,11 +203,7 @@ $(document).ready(function(){
 			shape.yEnd = currentCoords.y - shape.y;
 
 			shapes.push(shape);
-			// shape.draw();
 			drawShapes();
-
-		} else {
-			needNewShape = 1;
 		}
 	});
 /***********End Canvas methods*************************/	
