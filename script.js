@@ -46,6 +46,11 @@ function drawShapes() {
     shape.draw();
   }
 }
+
+function getDistance(startX, startY, endX, endY){
+	return (distanceFromCenter = Math.floor(Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2))));
+}
+
 /*******************************
 Rectangle object methods
 Inherited from Shape
@@ -69,6 +74,56 @@ Rectangle.prototype.draw = function () {
     this.context.strokeStyle = "black";
     this.context.fill();
     this.context.stroke(); 
+};
+
+/*******************************
+Line object methods
+Inherited from Shape
+*******************************/
+
+function Line(canvas, x, y) {
+	Shape.call(this,canvas, x, y);
+	this.xEnd = x;
+	this.yEnd = y;
+}
+
+// Clone(Shape.prototype);
+Line.prototype = new Shape(); 
+Line.prototype.constructor = Line;
+
+Line.prototype.draw = function () {
+    this.context.globalAlpha = 0.85;
+    this.context.beginPath();
+    this.context.moveTo(this.x, this.y);
+    this.context.lineTo(this.xEnd, this.yEnd);
+    this.context.strokeStyle = this.getColor();
+    this.context.stroke();
+};
+
+/*******************************
+Circle object methods
+Inherited from Shape
+*******************************/
+
+function Circle(canvas, x, y) {
+	Shape.call(this,canvas, x, y);
+	this.xEnd = x;
+	this.yEnd = y;
+}
+
+// Clone(Shape.prototype);
+Circle.prototype = new Shape(); 
+Circle.prototype.constructor = Line;
+
+Circle.prototype.draw = function () {
+	var radius = getDistance(this.x, this.y, this.xEnd, this.yEnd);
+    this.context.globalAlpha = 0.85;
+    this.context.beginPath();
+    this.context.arc(this.x, this.y, radius, 0, 2 * Math.PI);
+    this.context.fillStyle = this.getColor();
+    this.context.strokeStyle = "black";
+    this.context.fill();
+    this.context.stroke();
 };
 
 /*******************************
@@ -193,14 +248,17 @@ $(document).ready(function(){
 			currentCoords = getMouseCoords(e);
 		
 			if(needNewShape == 1){
-				shape = new Rectangle(canvas, currentCoords.x, currentCoords.y, 0, 0);
+				shape = new Circle(canvas, currentCoords.x, currentCoords.y);
 				needNewShape = 0;		
 			} else{
 				shapes.pop();
 			}
 
-			shape.xEnd = currentCoords.x - shape.x;
-			shape.yEnd = currentCoords.y - shape.y;
+			// shape.xEnd = currentCoords.x - shape.x;
+			// shape.yEnd = currentCoords.y - shape.y;
+
+			shape.xEnd = currentCoords.x;
+			shape.yEnd = currentCoords.y;
 
 			shapes.push(shape);
 			drawShapes();
