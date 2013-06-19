@@ -288,7 +288,7 @@ $(document).ready(function(){
 			if(needNewShape == 1){
 				switch(currentShapeType){
 					case(shapeTypes.LINE):
-						shape = new currentShapeType(canvas, currentCoords.x, currentCoords.y);
+						shape = new Line(canvas, currentCoords.x, currentCoords.y);
 					break;
 					case(shapeTypes.RECTANGLE):
 						shape = new Rectangle(canvas, currentCoords.x, currentCoords.y);
