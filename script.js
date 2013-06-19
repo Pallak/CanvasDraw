@@ -18,18 +18,6 @@ function Shape(canvas, x, y) {
 	}
 }
 
-function randomFromTo(from, to) {
-  return Math.floor(Math.random() * (to - from + 1) + from);
-}
-
-Shape.prototype.getColor = function () { 
-	if (this.color == undefined) {
-		var colors = ["green", "blue", "red", "yellow", "magenta", "orange", "brown", "purple", "pink"];
-		this.color = colors[randomFromTo(0, 8)];	
-	}
-	return this.color; 
-};
-
 Shape.prototype.selected = false;
 Shape.prototype.setSelected = function(value) { this.selected = value;}
 Shape.prototype.isSelected = function() { return this.selected;}
@@ -67,6 +55,8 @@ function Rectangle(canvas, x, y) {
 	Shape.call(this,canvas, x, y);
 	this.xEnd = x;
 	this.yEnd = y;
+	this.fillColor = $("#fillColor").val();
+	this.outlineColor = $("#outlineColor").val();
 }
 
 // Clone(Shape.prototype);
@@ -79,8 +69,8 @@ Rectangle.prototype.draw = function () {
     var yLength = this.yEnd - this.y;
     this.context.beginPath();
     this.context.rect(this.x, this.y, xLength, yLength);
-    this.context.fillStyle = this.getColor();
-    this.context.strokeStyle = "black";
+    this.context.fillStyle = this.fillColor;
+    this.context.strokeStyle = this.outlineColor;
     this.context.fill();
     this.context.stroke(); 
 };
@@ -94,6 +84,7 @@ function Line(canvas, x, y) {
 	Shape.call(this,canvas, x, y);
 	this.xEnd = x;
 	this.yEnd = y;
+	this.outlineColor = $("#outlineColor").val();
 }
 
 // Clone(Shape.prototype);
@@ -105,7 +96,7 @@ Line.prototype.draw = function () {
     this.context.beginPath();
     this.context.moveTo(this.x, this.y);
     this.context.lineTo(this.xEnd, this.yEnd);
-    this.context.strokeStyle = this.getColor();
+    this.context.strokeStyle = this.outlineColor;
     this.context.stroke();
 };
 
@@ -118,6 +109,8 @@ function Circle(canvas, x, y) {
 	Shape.call(this,canvas, x, y);
 	this.xEnd = x;
 	this.yEnd = y;
+	this.fillColor = $("#fillColor").val();
+	this.outlineColor = $("#outlineColor").val();
 }
 
 // Clone(Shape.prototype);
@@ -129,8 +122,8 @@ Circle.prototype.draw = function () {
     this.context.globalAlpha = 0.85;
     this.context.beginPath();
     this.context.arc(this.x, this.y, radius, 0, 2 * Math.PI);
-    this.context.fillStyle = this.getColor();
-    this.context.strokeStyle = "black";
+    this.context.fillStyle = this.fillColor;
+    this.context.strokeStyle = this.outlineColor;
     this.context.fill();
     this.context.stroke();
 };
@@ -219,6 +212,7 @@ $(document).ready(function(){
 	},function(){
 		$(this).animate({width:165, duration:200}, "fast");
 	});
+
 /***************End toolbar interactivity**************/
 
 /***************Begin menu interactivity***************/
