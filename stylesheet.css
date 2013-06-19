@@ -53,6 +53,10 @@ UL li{
 	margin: 5px;
 }
 
+.shapes{
+	display: inline-block;
+}
+
 .draw, .select, .move, .resize, .copy{
 	display: none;
 }

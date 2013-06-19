@@ -2,6 +2,13 @@
 Shape object methods
 *******************************/
 
+// Types of shapes
+var shapeTypes = {
+    LINE: 0,
+    CIRCLE: 1,
+    RECTANGLE: 2
+};
+
 // Shape object constructor
 function Shape(canvas, x, y) {
 	if (canvas) {
@@ -68,8 +75,10 @@ Rectangle.prototype.constructor = Rectangle;
 
 Rectangle.prototype.draw = function () {
     this.context.globalAlpha = 0.85;
+    var xLength = this.xEnd - this.x;
+    var yLength = this.yEnd - this.y;
     this.context.beginPath();
-    this.context.rect(this.x, this.y, this.xEnd, this.yEnd);
+    this.context.rect(this.x, this.y, xLength, yLength);
     this.context.fillStyle = this.getColor();
     this.context.strokeStyle = "black";
     this.context.fill();
@@ -162,11 +171,29 @@ function selectItem (item) {
 }
 
 /*******************************
+Highlighting certain menu items.
+Removes highlight from all menu 
+items and then highlights the 
+selected item.
+Currently only used for shapes menu,
+which is part of the draw menu.
+*******************************/
+function selectMenuItem(item){
+	$(".shapes li").each(function() {
+		$(this).css("background-color", "#047F6A");
+	});
+	item.css("background-color", "#57BEAD");
+	currentShapeType = item.index();
+}
+
+
+/*******************************
 Global Variables
 *******************************/
 var shapes = [];
 var canvas;
 var context;
+var currentShapeType;
 
 $(document).ready(function(){
 	canvas = document.getElementById("canvas");
@@ -195,6 +222,17 @@ $(document).ready(function(){
 /***************End toolbar interactivity**************/
 
 /***************Begin menu interactivity***************/
+	/*******************************
+	DRAW MENU
+	********************************/
+
+	// Line selected by default
+	selectMenuItem($(".shapes li").first());
+
+	$(".shapes li").click(function(){
+		selectMenuItem($(this));
+	});
+
 /***************End menu interactivity*****************/
 
 /***************Canvas methods*************************/
@@ -248,14 +286,23 @@ $(document).ready(function(){
 			currentCoords = getMouseCoords(e);
 		
 			if(needNewShape == 1){
-				shape = new Circle(canvas, currentCoords.x, currentCoords.y);
+				switch(currentShapeType){
+					case(shapeTypes.LINE):
+						shape = new currentShapeType(canvas, currentCoords.x, currentCoords.y);
+					break;
+					case(shapeTypes.RECTANGLE):
+						shape = new Rectangle(canvas, currentCoords.x, currentCoords.y);
+					break;
+					case(shapeTypes.CIRCLE):
+						shape = new Circle(canvas, currentCoords.x, currentCoords.y);
+					break;
+					default:
+					alert("Some error occured");
+				}
 				needNewShape = 0;		
 			} else{
 				shapes.pop();
 			}
-
-			// shape.xEnd = currentCoords.x - shape.x;
-			// shape.yEnd = currentCoords.y - shape.y;
 
 			shape.xEnd = currentCoords.x;
 			shape.yEnd = currentCoords.y;
