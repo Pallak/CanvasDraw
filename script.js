@@ -93,6 +93,7 @@ function Line(canvas, x, y) {
 	Shape.call(this,canvas, x, y);
 	this.xEnd = x;
 	this.yEnd = y;
+	this.slope = (this.y - this.yEnd)/(this.x - this.xEnd);
 	this.outlineColor = $("#outlineColor").val();
 }
 
@@ -108,6 +109,16 @@ Line.prototype.draw = function () {
     this.context.strokeStyle = this.outlineColor;
     this.context.stroke();
 };
+
+Line.prototype.inside = function(x,y){
+	if((x > this.x && x < this.xEnd) || (x < this.x && x > this.xEnd)){
+		console.log("inside x of line");
+		if(y <= this.slope*x + this.y - 3 ||  y >= this.slope*x + this.y + 3){
+			return 1;
+		}
+	}
+	return 0;
+}
 
 /*******************************
 Circle object methods
@@ -140,7 +151,6 @@ Circle.prototype.draw = function () {
 Circle.prototype.inside = function(x,y){
 	if (getDistance(x, y, this.x, this.y) <= getDistance(this.x, this.y, this.xEnd, this.yEnd)){
 		return 1;
-		console.log(this.xEnd);
 	} else {
 		return 0;
 	}
@@ -331,6 +341,7 @@ $(document).ready(function(){
 				for(i = shapes.length - 1; (i >= 0) && (shapeFound == 0); i-- ){
 					shapeFound = shapes[i].inside(currentCoords.x,currentCoords.y);
 				}
+				console.log(shapeFound);
 			}
 		}
 	});
