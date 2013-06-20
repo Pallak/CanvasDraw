@@ -16,6 +16,7 @@ function Shape(canvas, x, y) {
 		this.x = x;
 		this.y = y;
 	}
+
 }
 
 Shape.prototype.selected = false;
@@ -75,6 +76,14 @@ Rectangle.prototype.draw = function () {
     this.context.stroke(); 
 };
 
+
+Rectangle.prototype.inside = function (x,y){
+	if(x > this.x && x < this.xEnd && y > this.y && y < this.yEnd) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
 /*******************************
 Line object methods
 Inherited from Shape
@@ -128,6 +137,14 @@ Circle.prototype.draw = function () {
     this.context.stroke();
 };
 
+Circle.prototype.inside = function(x,y){
+	if (getDistance(x, y, this.x, this.y) <= getDistance(this.x, this.y, this.xEnd, this.yEnd)){
+		return 1;
+		console.log(this.xEnd);
+	} else {
+		return 0;
+	}
+}
 /*******************************
 Adding selected menu on the top.
 Hides all the menus and then 
@@ -187,6 +204,7 @@ var shapes = [];
 var canvas;
 var context;
 var currentShapeType;
+var currentMenuSelected = 0;
 
 $(document).ready(function(){
 	canvas = document.getElementById("canvas");
@@ -201,6 +219,7 @@ $(document).ready(function(){
 
 	$(".toolbar li").click(function(){
 		selectItem($(this));
+		currentMenuSelected = $(".toolbar li").index(this);
 	});
 	
 	/*******************************
@@ -263,6 +282,7 @@ $(document).ready(function(){
 
 	$("#canvas").mousedown(function(e) {
 		isMouseDown = 1;
+		console.log(getMouseCoords(e).x + " " + getMouseCoords(e).y);
 	});
 
 	$("#canvas").mouseout(function(e) {
@@ -276,33 +296,42 @@ $(document).ready(function(){
 	$("#canvas").mousemove(function(e){
 		if(isMouseDown)
 		{
-  			context.clearRect(0, 0, canvas.width, canvas.height);
-			currentCoords = getMouseCoords(e);
-		
-			if(needNewShape == 1){
-				switch(currentShapeType){
-					case(shapeTypes.LINE):
-						shape = new Line(canvas, currentCoords.x, currentCoords.y);
-					break;
-					case(shapeTypes.RECTANGLE):
-						shape = new Rectangle(canvas, currentCoords.x, currentCoords.y);
-					break;
-					case(shapeTypes.CIRCLE):
-						shape = new Circle(canvas, currentCoords.x, currentCoords.y);
-					break;
-					default:
-					alert("Some error occured");
+			///When currentMenuSelected is 0 the user has selected the "Draw" option
+			if(currentMenuSelected == 0){
+	  			context.clearRect(0, 0, canvas.width, canvas.height);
+				currentCoords = getMouseCoords(e);
+			
+				if(needNewShape == 1){
+					switch(currentShapeType){
+						case(shapeTypes.LINE):
+							shape = new Line(canvas, currentCoords.x, currentCoords.y);
+						break;
+						case(shapeTypes.RECTANGLE):
+							shape = new Rectangle(canvas, currentCoords.x, currentCoords.y);
+						break;
+						case(shapeTypes.CIRCLE):
+							shape = new Circle(canvas, currentCoords.x, currentCoords.y);
+						break;
+						default:
+						alert("Some error occured");
+					}
+					needNewShape = 0;		
+				} else{
+					shapes.pop();
 				}
-				needNewShape = 0;		
-			} else{
-				shapes.pop();
+	
+				shape.xEnd = currentCoords.x;
+				shape.yEnd = currentCoords.y;
+				shapes.push(shape);
+				drawShapes();
+			//When currentMenuSelected is 1, the user has selected the "Select" option
+			} else  if(currentMenuSelected == 1){
+				var shapeFound = 0;
+				currentCoords = getMouseCoords(e);
+				for(i = shapes.length - 1; (i >= 0) && (shapeFound == 0); i-- ){
+					shapeFound = shapes[i].inside(currentCoords.x,currentCoords.y);
+				}
 			}
-
-			shape.xEnd = currentCoords.x;
-			shape.yEnd = currentCoords.y;
-
-			shapes.push(shape);
-			drawShapes();
 		}
 	});
 /***********End Canvas methods*************************/	
