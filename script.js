@@ -25,6 +25,7 @@ Shape.prototype.selected = false;
 Shape.prototype.setSelected = function(value) { this.selected = value;}
 Shape.prototype.isSelected = function() { return this.selected;}
 
+// Returns the center point of the shape
 Shape.prototype.center = function() {
 	var xSize = this.xEnd - this.x;
     var ySize = this.yEnd - this.y;
@@ -84,7 +85,51 @@ function drawShapes() {
 }
 
 function getDistance(startX, startY, endX, endY){
-	return (distanceFromCenter = Math.floor(Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2))));
+	return (Math.floor(Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2))));
+}
+
+var controlPoints = {
+    START: 0,
+    END: 1,
+    CENTER: 2
+};
+
+// Hit test for the shape's control points
+Shape.prototype.hit = function(x, y) {
+	// Go through each control point to check 
+	//if it got selected
+
+	// Calculate distance between each control
+	// point and position of cursor
+	var startDistance = getDistance(this.x, this.y, x, y);
+	var endDistance = getDistance(this.xEnd, this.yEnd, x, y);
+	var center = this.center();
+	var centerDistance = getDistance(center.x, center.y, x, y);
+
+	// See if cursor point lies on the 
+	// control point rectangle
+	// TODO: does not work perfectly - fix
+	if (startDistance <= (pointSize/2)) {
+		return {
+			result: true,
+			point: controlPoints.START
+		};
+	} else if(endDistance <= (pointSize/2)){	
+		return {
+			result: true,
+			point: controlPoints.END
+		};
+	} else if(centerDistance <= (pointSize/2)){
+		return {
+			result: true,
+			point: controlPoints.CENTER
+		};
+	}
+
+	return {
+		result: false,
+		point: null
+	};
 }
 
 /*******************************
@@ -118,11 +163,12 @@ Rectangle.prototype.draw = function () {
 
 
 Rectangle.prototype.inside = function (x,y){
-	if(x > this.x && x < this.xEnd && y > this.y && y < this.yEnd) {
-		return 1;
-	} else {
-		return 0;
-	}
+    return Shape.prototype.hit.call(this, x, y);
+	// if(x > this.x && x < this.xEnd && y > this.y && y < this.yEnd) {
+	// 	return 1;
+	// } else {
+	// 	return 0;
+	// }
 }
 
 /*******************************
@@ -152,13 +198,14 @@ Line.prototype.draw = function () {
 };
 
 Line.prototype.inside = function(x,y){
-	if((x > this.x && x < this.xEnd) || (x < this.x && x > this.xEnd)){
-		console.log("inside x of line");
-		if(y <= this.slope*x + this.y - 3 ||  y >= this.slope*x + this.y + 3){
-			return 1;
-		}
-	}
-	return 0;
+	return Shape.prototype.hit.call(this, x, y);
+	// if((x > this.x && x < this.xEnd) || (x < this.x && x > this.xEnd)){
+	// 	console.log("inside x of line");
+	// 	if(y <= this.slope*x + this.y - 3 ||  y >= this.slope*x + this.y + 3){
+	// 		return 1;
+	// 	}
+	// }
+	// return 0;
 }
 
 /*******************************
@@ -191,11 +238,12 @@ Circle.prototype.draw = function () {
 };
 
 Circle.prototype.inside = function(x,y){
-	if (getDistance(x, y, this.x, this.y) <= getDistance(this.x, this.y, this.xEnd, this.yEnd)){
-		return 1;
-	} else {
-		return 0;
-	}
+	return Shape.prototype.hit.call(this, x, y);
+	// if (getDistance(x, y, this.x, this.y) <= getDistance(this.x, this.y, this.xEnd, this.yEnd)){
+	// 	return 1;
+	// } else {
+	// 	return 0;
+	// }
 }
 
 /*******************************
@@ -276,6 +324,8 @@ var canvas;
 var context;
 var currentShapeType;
 var currentToolbarItem;
+var currentSelectedShape;
+var currentControlPoint;
 
 $(document).ready(function(){
 	canvas = document.getElementById("canvas");
@@ -365,6 +415,47 @@ $(document).ready(function(){
 		// use switch case for different toolbar items like in mousemove
 		isMouseDown = 1;
 		// console.log(getMouseCoords(e).x + " " + getMouseCoords(e).y);
+
+		switch (currentToolbarItem) {
+			case (toolbarItem.DRAW):
+			{
+			} 
+			break;
+
+			case (toolbarItem.SELECT):
+			{
+				var shapeFound = false;
+				
+				// Unselect last selected shape 
+				if (currentSelectedShape != null) {
+				currentSelectedShape.setSelected(false);
+				}
+				currentSelectedShape = null;
+				currentControlPoint = null;
+
+				// Perform hit test for all shapes starting from the 
+				// last index (from front to back)
+				// Break at first(front-most) shape found
+				currentCoords = getMouseCoords(e);
+				for(i = shapes.length - 1; i >= 0; i-- ){
+					shapeFound = shapes[i].inside(currentCoords.x,currentCoords.y);
+					if (shapeFound.result == true) {
+						currentSelectedShape = shapes[i];
+						currentSelectedShape.setSelected(true);
+						currentControlPoint = shapeFound.point;
+						break;
+					} 
+				}
+
+				// Need to draw to show selected/unselected shapes instantly
+				drawShapes();
+			}
+			break;
+
+			default:
+			// Do not add any console logs/alerts here unless for debugging
+			// Will get triggered infinitely
+		}
 	});
 
 	$("#canvas").mouseout(function(e) {
@@ -413,12 +504,45 @@ $(document).ready(function(){
 
 				case (toolbarItem.SELECT):
 				{
-					// var shapeFound = 0;
-					// currentCoords = getMouseCoords(e);
-					// for(i = shapes.length - 1; (i >= 0) && (shapeFound == 0); i-- ){
-					// 	shapeFound = shapes[i].inside(currentCoords.x,currentCoords.y);
-					// }
-					// console.log(shapeFound);
+					if (currentSelectedShape != null && currentControlPoint!= null) {
+						currentCoords = getMouseCoords(e);
+						switch(currentControlPoint){
+							case(controlPoints.START):
+							{
+								// update start point
+								currentSelectedShape.x = currentCoords.x;
+								currentSelectedShape.y = currentCoords.y;
+							}
+							break;
+
+							case(controlPoints.CENTER):
+							{
+								// Update position of shape using the displacement
+								// of the center
+								var center = currentSelectedShape.center();
+								xDisplacement = currentCoords.x - center.x;
+								yDisplacement = currentCoords.y - center.y;
+								currentSelectedShape.x += xDisplacement;
+								currentSelectedShape.y += yDisplacement;
+								currentSelectedShape.xEnd += xDisplacement;
+								currentSelectedShape.yEnd += yDisplacement;
+							}
+							break;
+
+							case(controlPoints.END):
+							{
+								// update end point
+								currentSelectedShape.xEnd = currentCoords.x;
+								currentSelectedShape.yEnd = currentCoords.y;
+							}
+							break;
+
+							default:
+							// do nothing
+						}
+
+						drawShapes();
+					};
 				}
 				break;
 
