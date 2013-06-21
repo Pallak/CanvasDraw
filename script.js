@@ -36,7 +36,7 @@ Shape.prototype.center = function() {
 }
 
 function clearCanvas() {
-  // Remove all the circles.
+  // Remove all the shapes.
   shapes = [];
 
   // Update the display.
@@ -64,7 +64,9 @@ function drawShapes() {
   // Go through all the shapes.
   for(var i=0; i<shapes.length; i++) {
     var shape = shapes[i];
-    shape.draw();
+    if (shape!=null) {
+    	shape.draw();
+	}
 
     // If select mode is on, display 
     // control points for the shape
@@ -75,7 +77,7 @@ function drawShapes() {
     // depending on whether shape is selected
     var color = (shape.isSelected() != false) ?"#ff0000" :"#000000";
 
-    if (currentToolbarItem == toolbarItem.SELECT) {
+    if (currentToolbarItem == toolbarItem.SELECT || currentToolbarItem == toolbarItem.COPY) {
 		drawPoint(shape.x, shape.y, color, pointSize);
 		drawPoint(shape.xEnd, shape.yEnd, color, pointSize);
 		center = shape.center();
@@ -99,32 +101,64 @@ Shape.prototype.inside = function(x, y) {
 	// Go through each control point to check 
 	//if it got selected
 
-	// Calculate distance between each control
-	// point and position of cursor
-	var startDistance = getDistance(this.x, this.y, x, y);
-	var endDistance = getDistance(this.xEnd, this.yEnd, x, y);
-	var center = this.center();
-	var centerDistance = getDistance(center.x, center.y, x, y);
+	// // Calculate distance between each control
+	// // point and position of cursor
+	// var startDistance = getDistance(this.x, this.y, x, y);
+	// var endDistance = getDistance(this.xEnd, this.yEnd, x, y);
+	// var center = this.center();
+	// var centerDistance = getDistance(center.x, center.y, x, y);
 
-	// See if cursor point lies on the 
-	// control point rectangle
-	// TODO: does not work perfectly - fix
-	if (startDistance <= (pointSize/2)) {
-		return {
+	// // See if cursor point lies on the 
+	// // control point rectangle
+	// // TODO: does not work perfectly - fix
+	// if (startDistance <= (pointSize/2)) {
+	// 	return {
+	// 		result: true,
+	// 		point: controlPoints.START
+	// 	};
+	// } else if(endDistance <= (pointSize/2)){	
+	// 	return {
+	// 		result: true,
+	// 		point: controlPoints.END
+	// 	};
+	// } else if(centerDistance <= (pointSize/2)){
+	// 	return {
+	// 		result: true,
+	// 		point: controlPoints.CENTER
+	// 	};
+	// }
+
+	context.beginPath();            
+    context.rect(this.x - pointSize/2, this.y - pointSize/2, pointSize, pointSize);
+    var inside = this.context.isPointInPath(x,y);
+    if (inside == true) {
+    	return {
 			result: true,
 			point: controlPoints.START
 		};
-	} else if(endDistance <= (pointSize/2)){	
-		return {
+    };
+
+
+	context.beginPath();            
+    context.rect(this.xEnd - pointSize/2, this.yEnd - pointSize/2, pointSize, pointSize);
+    var inside = this.context.isPointInPath(x,y);
+    if (inside == true) {
+    	return {
 			result: true,
 			point: controlPoints.END
 		};
-	} else if(centerDistance <= (pointSize/2)){
-		return {
+    };
+
+    var center = this.center();
+	context.beginPath();            
+    context.rect(center.x - pointSize/2, center.y - pointSize/2, pointSize, pointSize);
+    var inside = this.context.isPointInPath(x,y);
+    if (inside == true) {
+    	return {
 			result: true,
 			point: controlPoints.CENTER
 		};
-	}
+    };
 
 	return {
 		result: false,
@@ -216,7 +250,7 @@ function Circle(canvas, x, y) {
 
 // Clone(Shape.prototype);
 Circle.prototype = new Shape(); 
-Circle.prototype.constructor = Line;
+Circle.prototype.constructor = Circle;
 
 Circle.prototype.draw = function () {
 	var center = this.center();
@@ -247,10 +281,9 @@ for readability
 var toolbarItem = {
     DRAW: 0,
     SELECT: 1,
-    MOVE: 2,
-    RESIZE: 3,
-    COPY: 4,
-    CLEARCANVAS: 5
+    COPY: 2,
+    PASTE:3,
+    CLEARCANVAS: 4
 };
 
 /*******************************
@@ -320,6 +353,7 @@ var currentShapeType;
 var currentToolbarItem;
 var currentSelectedShape;
 var currentControlPoint;
+var clipboardShape;
 
 $(document).ready(function(){
 	canvas = document.getElementById("canvas");
@@ -417,15 +451,17 @@ $(document).ready(function(){
 			break;
 
 			case (toolbarItem.SELECT):
+			case (toolbarItem.COPY):
 			{
 				var shapeFound = false;
 				
 				// Unselect last selected shape 
 				if (currentSelectedShape != null) {
-				currentSelectedShape.setSelected(false);
+					currentSelectedShape.setSelected(false);
 				}
 				currentSelectedShape = null;
 				currentControlPoint = null;
+				clipboardShape = null;
 
 				// Perform hit test for all shapes starting from the 
 				// last index (from front to back)
@@ -434,7 +470,11 @@ $(document).ready(function(){
 				for(i = shapes.length - 1; i >= 0; i-- ){
 					shapeFound = shapes[i].inside(currentCoords.x,currentCoords.y);
 					if (shapeFound.result == true) {
-						currentSelectedShape = shapes[i];
+						var clonedShape = jQuery.extend(true, {}, shapes[i]);
+						shapes.splice(i,1)
+						shapes.push(clonedShape);
+
+						currentSelectedShape = shapes[shapes.length-1];
 						currentSelectedShape.setSelected(true);
 						currentControlPoint = shapeFound.point;
 
@@ -442,12 +482,43 @@ $(document).ready(function(){
 						$(".select .outlineColor").val(currentSelectedShape.outlineColor);
 						$(".select .fillColor").val(currentSelectedShape.fillColor );
 						$(".select .outlineWidth").val(currentSelectedShape.outlineWidth);
+						if( shapeFound.result == true && currentToolbarItem == toolbarItem.COPY){
+							clipboardShape = jQuery.extend(true, {}, shapes[shapes.length-1]);
+						}
 						break;
 					} 
 				}
-
 				// Need to draw to show selected/unselected shapes instantly
 				drawShapes();
+			}
+			break;
+
+			case(toolbarItem.PASTE):
+			{
+				if (clipboardShape!=null){
+					currentCoords = getMouseCoords(e);
+					var newShape = jQuery.extend(true, {}, clipboardShape);
+					var center = clipboardShape.center();
+					
+					var x = Math.min(clipboardShape.x, clipboardShape.xEnd);
+					var y = Math.min(clipboardShape.y, clipboardShape.yEnd);
+					var xEnd = Math.max(clipboardShape.x, clipboardShape.xEnd);
+					var yEnd = Math.max(clipboardShape.y, clipboardShape.yEnd);
+
+					var xDisplacement = center.x - x;
+					var yDisplacement = center.y - y;
+					var xEndDisplacement = xEnd - center.x;
+					var yEndDisplacement = yEnd - center.y;
+
+					newShape.x = currentCoords.x - xDisplacement;
+					newShape.y = currentCoords.y - yDisplacement;
+					newShape.xEnd = currentCoords.x + xEndDisplacement;
+					newShape.yEnd = currentCoords.y + yEndDisplacement;
+					newShape.setSelected(false);
+					shapes.push(newShape);
+					console.log(newShape.x + "       " + newShape.y + "      " + newShape.xEnd + "      " + newShape.yEnd);
+					drawShapes();
+				}
 			}
 			break;
 
@@ -480,11 +551,11 @@ $(document).ready(function(){
 							case(shapeTypes.LINE):
 								shape = new Line(canvas, currentCoords.x, currentCoords.y);
 							break;
-							case(shapeTypes.RECTANGLE):
-								shape = new Rectangle(canvas, currentCoords.x, currentCoords.y);
-							break;
 							case(shapeTypes.CIRCLE):
 								shape = new Circle(canvas, currentCoords.x, currentCoords.y);
+							break;
+							case(shapeTypes.RECTANGLE):
+								shape = new Rectangle(canvas, currentCoords.x, currentCoords.y);
 							break;
 							default:
 							alert("Some error occured");
