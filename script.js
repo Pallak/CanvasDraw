@@ -15,6 +15,8 @@ function Shape(canvas, x, y) {
 		this.context = canvas.getContext("2d");
 		this.x = x;
 		this.y = y;
+		this.outlineColor = $("#outlineColor").val();
+		this.outlineWidth = $("#outlineWidth").val();
 	}
 
 }
@@ -56,7 +58,6 @@ function Rectangle(canvas, x, y) {
 	this.xEnd = x;
 	this.yEnd = y;
 	this.fillColor = $("#fillColor").val();
-	this.outlineColor = $("#outlineColor").val();
 }
 
 // Clone(Shape.prototype);
@@ -71,6 +72,7 @@ Rectangle.prototype.draw = function () {
     this.context.rect(this.x, this.y, xLength, yLength);
     this.context.fillStyle = this.fillColor;
     this.context.strokeStyle = this.outlineColor;
+    this.context.lineWidth = this.outlineWidth;
     this.context.fill();
     this.context.stroke(); 
 };
@@ -94,7 +96,6 @@ function Line(canvas, x, y) {
 	this.xEnd = x;
 	this.yEnd = y;
 	this.slope = (this.y - this.yEnd)/(this.x - this.xEnd);
-	this.outlineColor = $("#outlineColor").val();
 }
 
 // Clone(Shape.prototype);
@@ -107,6 +108,7 @@ Line.prototype.draw = function () {
     this.context.moveTo(this.x, this.y);
     this.context.lineTo(this.xEnd, this.yEnd);
     this.context.strokeStyle = this.outlineColor;
+    this.context.lineWidth = this.outlineWidth;
     this.context.stroke();
 };
 
@@ -130,7 +132,6 @@ function Circle(canvas, x, y) {
 	this.xEnd = x;
 	this.yEnd = y;
 	this.fillColor = $("#fillColor").val();
-	this.outlineColor = $("#outlineColor").val();
 }
 
 // Clone(Shape.prototype);
@@ -144,6 +145,7 @@ Circle.prototype.draw = function () {
     this.context.arc(this.x, this.y, radius, 0, 2 * Math.PI);
     this.context.fillStyle = this.fillColor;
     this.context.strokeStyle = this.outlineColor;
+    this.context.lineWidth = this.outlineWidth;
     this.context.fill();
     this.context.stroke();
 };
@@ -242,6 +244,16 @@ $(document).ready(function(){
 /***************Begin toolbar interactivity**************/
 	selectItem($(".toolbar li").first());
 
+	/*******************************
+	Adding options to the outline width 
+	drop down menu
+	TODO: change dropdown to something 
+	nicer.
+	********************************/
+	for (var i = 1; i <= 20; i++) {
+		$("#outlineWidth").append("<option>"+i+"</option>");
+	};
+
 	$(".toolbar li").click(function(){
 		selectItem($(this));
 	});
@@ -314,6 +326,7 @@ $(document).ready(function(){
 	$("#canvas").mouseout(function(e) {
 		$("#canvas").trigger("mouseup");
 	});
+
 	/*****************************************
 	This function draws a shape while mouse is 
 	moving and pressed down. On mouse up event,
