@@ -23,7 +23,6 @@ Shape.prototype.selected = false;
 Shape.prototype.setSelected = function(value) { this.selected = value;}
 Shape.prototype.isSelected = function() { return this.selected;}
 
-
 function clearCanvas() {
   // Remove all the circles.
   shapes = [];
@@ -84,6 +83,7 @@ Rectangle.prototype.inside = function (x,y){
 		return 0;
 	}
 }
+
 /*******************************
 Line object methods
 Inherited from Shape
@@ -155,6 +155,20 @@ Circle.prototype.inside = function(x,y){
 		return 0;
 	}
 }
+
+/*******************************
+Tool bar item names/types
+for readability
+*******************************/
+var toolbarItem = {
+    DRAW: 0,
+    SELECT: 1,
+    MOVE: 2,
+    RESIZE: 3,
+    COPY: 4,
+    CLEARCANVAS: 5
+};
+
 /*******************************
 Adding selected menu on the top.
 Hides all the menus and then 
@@ -176,12 +190,13 @@ items and then highlights the
 selected item
 *******************************/
 function selectItem (item) {
-	if(item.index()!=5){
+	if(item.index()!=toolbarItem.CLEARCANVAS){
 		$(".toolbar li").each(function() {
 			$(this).css("background-color", "#047F6A");
 		});
 		item.css("background-color", "#57BEAD");
 		showSelectedMenu(item);
+		currentToolbarItem = item.index();
 	}
 	/* If item is "clear canvas" treat it 
 	as a button*/
@@ -214,7 +229,7 @@ var shapes = [];
 var canvas;
 var context;
 var currentShapeType;
-var currentMenuSelected = 0;
+var currentToolbarItem;
 
 $(document).ready(function(){
 	canvas = document.getElementById("canvas");
@@ -229,7 +244,6 @@ $(document).ready(function(){
 
 	$(".toolbar li").click(function(){
 		selectItem($(this));
-		currentMenuSelected = $(".toolbar li").index(this);
 	});
 	
 	/*******************************
@@ -286,13 +300,15 @@ $(document).ready(function(){
 
 	// Functions to set the mouse pressed flag
 	$("#canvas").mouseup(function(e) {
+		// use switch case for different toolbar items like in mousemove
 		isMouseDown=0;
 		needNewShape = 1;
 	});
 
 	$("#canvas").mousedown(function(e) {
+		// use switch case for different toolbar items like in mousemove
 		isMouseDown = 1;
-		console.log(getMouseCoords(e).x + " " + getMouseCoords(e).y);
+		// console.log(getMouseCoords(e).x + " " + getMouseCoords(e).y);
 	});
 
 	$("#canvas").mouseout(function(e) {
@@ -306,42 +322,52 @@ $(document).ready(function(){
 	$("#canvas").mousemove(function(e){
 		if(isMouseDown)
 		{
-			///When currentMenuSelected is 0 the user has selected the "Draw" option
-			if(currentMenuSelected == 0){
-	  			context.clearRect(0, 0, canvas.width, canvas.height);
-				currentCoords = getMouseCoords(e);
-			
-				if(needNewShape == 1){
-					switch(currentShapeType){
-						case(shapeTypes.LINE):
-							shape = new Line(canvas, currentCoords.x, currentCoords.y);
-						break;
-						case(shapeTypes.RECTANGLE):
-							shape = new Rectangle(canvas, currentCoords.x, currentCoords.y);
-						break;
-						case(shapeTypes.CIRCLE):
-							shape = new Circle(canvas, currentCoords.x, currentCoords.y);
-						break;
-						default:
-						alert("Some error occured");
+			switch (currentToolbarItem) {
+				case (toolbarItem.DRAW):
+				{
+		  			context.clearRect(0, 0, canvas.width, canvas.height);
+					currentCoords = getMouseCoords(e);
+				
+					if(needNewShape == 1){
+						switch(currentShapeType){
+							case(shapeTypes.LINE):
+								shape = new Line(canvas, currentCoords.x, currentCoords.y);
+							break;
+							case(shapeTypes.RECTANGLE):
+								shape = new Rectangle(canvas, currentCoords.x, currentCoords.y);
+							break;
+							case(shapeTypes.CIRCLE):
+								shape = new Circle(canvas, currentCoords.x, currentCoords.y);
+							break;
+							default:
+							alert("Some error occured");
+						}
+						needNewShape = 0;		
+					} else{
+						shapes.pop();
 					}
-					needNewShape = 0;		
-				} else{
-					shapes.pop();
+		
+					shape.xEnd = currentCoords.x;
+					shape.yEnd = currentCoords.y;
+					shapes.push(shape);
+					drawShapes();
+				} 
+				break;
+
+				case (toolbarItem.SELECT):
+				{
+					var shapeFound = 0;
+					currentCoords = getMouseCoords(e);
+					for(i = shapes.length - 1; (i >= 0) && (shapeFound == 0); i-- ){
+						shapeFound = shapes[i].inside(currentCoords.x,currentCoords.y);
+					}
+					console.log(shapeFound);
 				}
-	
-				shape.xEnd = currentCoords.x;
-				shape.yEnd = currentCoords.y;
-				shapes.push(shape);
-				drawShapes();
-			//When currentMenuSelected is 1, the user has selected the "Select" option
-			} else  if(currentMenuSelected == 1){
-				var shapeFound = 0;
-				currentCoords = getMouseCoords(e);
-				for(i = shapes.length - 1; (i >= 0) && (shapeFound == 0); i-- ){
-					shapeFound = shapes[i].inside(currentCoords.x,currentCoords.y);
-				}
-				console.log(shapeFound);
+				break;
+
+				default:
+				// Do not add any console logs/alerts here unless for debugging
+				// Will get triggered infinitely
 			}
 		}
 	});
