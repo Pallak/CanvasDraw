@@ -25,12 +25,35 @@ Shape.prototype.selected = false;
 Shape.prototype.setSelected = function(value) { this.selected = value;}
 Shape.prototype.isSelected = function() { return this.selected;}
 
+Shape.prototype.center = function() {
+	var xSize = this.xEnd - this.x;
+    var ySize = this.yEnd - this.y;
+    return {
+    	x:this.x + xSize/2,
+    	y:this.y + ySize/2
+    };
+}
+
 function clearCanvas() {
   // Remove all the circles.
   shapes = [];
 
   // Update the display.
   drawShapes();
+}
+
+// Size (side) for control points
+var pointSize = 10;
+
+// Function for drawing control points        
+function drawPoint(x, y, color, size) {
+    context.beginPath();            
+    context.rect(x - size/2, y - size/2, size, size);
+    context.fillStyle = color;
+    this.context.strokeStyle = "black";
+    this.context.lineWidth = 1;
+    context.fill();
+    this.context.stroke(); 
 }
 
 function drawShapes() {
@@ -41,6 +64,22 @@ function drawShapes() {
   for(var i=0; i<shapes.length; i++) {
     var shape = shapes[i];
     shape.draw();
+
+    // If select mode is on, display 
+    // control points for the shape
+    // at the start, end and center 
+    // positions
+
+    // Select color for control points
+    // depending on whether shape is selected
+    var color = (shape.isSelected() != false) ?"#ff0000" :"#000000";
+
+    if (currentToolbarItem == toolbarItem.SELECT) {
+		drawPoint(shape.x, shape.y, color, pointSize);
+		drawPoint(shape.xEnd, shape.yEnd, color, pointSize);
+		center = shape.center();
+		drawPoint(center.x, center.y, color, pointSize);
+    }
   }
 }
 
@@ -139,10 +178,11 @@ Circle.prototype = new Shape();
 Circle.prototype.constructor = Line;
 
 Circle.prototype.draw = function () {
-	var radius = getDistance(this.x, this.y, this.xEnd, this.yEnd);
+	var center = this.center();
+	var radius = getDistance(this.x, this.y, center.x, center.y);
     this.context.globalAlpha = 0.85;
     this.context.beginPath();
-    this.context.arc(this.x, this.y, radius, 0, 2 * Math.PI);
+    this.context.arc(center.x, center.y, radius, 0, 2 * Math.PI);
     this.context.fillStyle = this.fillColor;
     this.context.strokeStyle = this.outlineColor;
     this.context.lineWidth = this.outlineWidth;
@@ -199,6 +239,10 @@ function selectItem (item) {
 		item.css("background-color", "#57BEAD");
 		showSelectedMenu(item);
 		currentToolbarItem = item.index();
+
+		// Redraw on canvas in case select is 
+		// turned on/off
+		drawShapes();
 	}
 	/* If item is "clear canvas" treat it 
 	as a button*/
@@ -369,12 +413,12 @@ $(document).ready(function(){
 
 				case (toolbarItem.SELECT):
 				{
-					var shapeFound = 0;
-					currentCoords = getMouseCoords(e);
-					for(i = shapes.length - 1; (i >= 0) && (shapeFound == 0); i-- ){
-						shapeFound = shapes[i].inside(currentCoords.x,currentCoords.y);
-					}
-					console.log(shapeFound);
+					// var shapeFound = 0;
+					// currentCoords = getMouseCoords(e);
+					// for(i = shapes.length - 1; (i >= 0) && (shapeFound == 0); i-- ){
+					// 	shapeFound = shapes[i].inside(currentCoords.x,currentCoords.y);
+					// }
+					// console.log(shapeFound);
 				}
 				break;
 
