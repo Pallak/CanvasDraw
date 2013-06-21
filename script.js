@@ -93,7 +93,8 @@ function getDistance(startX, startY, endX, endY){
 var controlPoints = {
     START: 0,
     END: 1,
-    CENTER: 2
+    CENTER: 2,
+    INTERIOR: 3
 };
 
 // Hit test for the shape's control points
@@ -231,11 +232,6 @@ Line.prototype.draw = function () {
     this.context.stroke();
 };
 
-// Do not need this because it only calls super
-// Line.prototype.inside = function(x,y){
-// 	return Shape.prototype.inside.call(this, x, y);
-// }
-
 /*******************************
 Circle object methods
 Inherited from Shape
@@ -266,12 +262,20 @@ Circle.prototype.draw = function () {
 };
 
 Circle.prototype.inside = function(x,y){
-	return Shape.prototype.inside.call(this, x, y);
-	// if (getDistance(x, y, this.x, this.y) <= getDistance(this.x, this.y, this.xEnd, this.yEnd)){
-	// 	return 1;
-	// } else {
-	// 	return 0;
-	// }
+	var hit = Shape.prototype.inside.call(this, x, y);
+	if(hit.result == true){
+		return hit;
+	} else if (getDistance(x, y, this.x, this.y) <= getDistance(this.x, this.y, this.xEnd, this.yEnd)){
+    	return {
+			result: true,
+			point: controlPoints.INTERIOR
+		};
+	}
+
+	return {
+		result: false,
+		point: null
+	};
 }
 
 /*******************************
@@ -354,6 +358,7 @@ var currentToolbarItem;
 var currentSelectedShape;
 var currentControlPoint;
 var clipboardShape;
+var coordsOnMouseDown;
 
 $(document).ready(function(){
 	canvas = document.getElementById("canvas");
@@ -451,6 +456,9 @@ $(document).ready(function(){
 			break;
 
 			case (toolbarItem.SELECT):
+			{
+				coordsOnMouseDown = getMouseCoords(e);
+			}
 			case (toolbarItem.COPY):
 			{
 				var shapeFound = false;
@@ -516,7 +524,6 @@ $(document).ready(function(){
 					newShape.yEnd = currentCoords.y + yEndDisplacement;
 					newShape.setSelected(false);
 					shapes.push(newShape);
-					console.log(newShape.x + "       " + newShape.y + "      " + newShape.xEnd + "      " + newShape.yEnd);
 					drawShapes();
 				}
 			}
@@ -586,16 +593,18 @@ $(document).ready(function(){
 							break;
 
 							case(controlPoints.CENTER):
+							case(controlPoints.INTERIOR):
 							{
 								// Update position of shape using the displacement
 								// of the center
 								var center = currentSelectedShape.center();
-								xDisplacement = currentCoords.x - center.x;
-								yDisplacement = currentCoords.y - center.y;
+								xDisplacement = currentCoords.x - coordsOnMouseDown.x;
+								yDisplacement = currentCoords.y - coordsOnMouseDown.y;
 								currentSelectedShape.x += xDisplacement;
 								currentSelectedShape.y += yDisplacement;
-								currentSelectedShape.xEnd += xDisplacement;
-								currentSelectedShape.yEnd += yDisplacement;
+								// currentSelectedShape.xEnd += xDisplacement;
+								// currentSelectedShape.yEnd += yDisplacement;
+								console.log(xDisplacement + "     " + yDisplacement);
 							}
 							break;
 
