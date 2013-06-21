@@ -15,8 +15,8 @@ function Shape(canvas, x, y) {
 		this.context = canvas.getContext("2d");
 		this.x = x;
 		this.y = y;
-		this.outlineColor = $("#outlineColor").val();
-		this.outlineWidth = $("#outlineWidth").val();
+		this.outlineColor = $(".draw .outlineColor").val();
+		this.outlineWidth = $(".draw .outlineWidth").val();
 	}
 
 }
@@ -95,7 +95,7 @@ var controlPoints = {
 };
 
 // Hit test for the shape's control points
-Shape.prototype.hit = function(x, y) {
+Shape.prototype.inside = function(x, y) {
 	// Go through each control point to check 
 	//if it got selected
 
@@ -141,7 +141,7 @@ function Rectangle(canvas, x, y) {
 	Shape.call(this,canvas, x, y);
 	this.xEnd = x;
 	this.yEnd = y;
-	this.fillColor = $("#fillColor").val();
+	this.fillColor = $(".draw .fillColor").val();
 }
 
 // Clone(Shape.prototype);
@@ -163,7 +163,7 @@ Rectangle.prototype.draw = function () {
 
 
 Rectangle.prototype.inside = function (x,y){
-    return Shape.prototype.hit.call(this, x, y);
+    return Shape.prototype.inside.call(this, x, y);
 	// if(x > this.x && x < this.xEnd && y > this.y && y < this.yEnd) {
 	// 	return 1;
 	// } else {
@@ -197,16 +197,10 @@ Line.prototype.draw = function () {
     this.context.stroke();
 };
 
-Line.prototype.inside = function(x,y){
-	return Shape.prototype.hit.call(this, x, y);
-	// if((x > this.x && x < this.xEnd) || (x < this.x && x > this.xEnd)){
-	// 	console.log("inside x of line");
-	// 	if(y <= this.slope*x + this.y - 3 ||  y >= this.slope*x + this.y + 3){
-	// 		return 1;
-	// 	}
-	// }
-	// return 0;
-}
+// Do not need this because it only calls super
+// Line.prototype.inside = function(x,y){
+// 	return Shape.prototype.inside.call(this, x, y);
+// }
 
 /*******************************
 Circle object methods
@@ -217,7 +211,7 @@ function Circle(canvas, x, y) {
 	Shape.call(this,canvas, x, y);
 	this.xEnd = x;
 	this.yEnd = y;
-	this.fillColor = $("#fillColor").val();
+	this.fillColor = $(".draw .fillColor").val();
 }
 
 // Clone(Shape.prototype);
@@ -238,7 +232,7 @@ Circle.prototype.draw = function () {
 };
 
 Circle.prototype.inside = function(x,y){
-	return Shape.prototype.hit.call(this, x, y);
+	return Shape.prototype.inside.call(this, x, y);
 	// if (getDistance(x, y, this.x, this.y) <= getDistance(this.x, this.y, this.xEnd, this.yEnd)){
 	// 	return 1;
 	// } else {
@@ -345,7 +339,7 @@ $(document).ready(function(){
 	nicer.
 	********************************/
 	for (var i = 1; i <= 20; i++) {
-		$("#outlineWidth").append("<option>"+i+"</option>");
+		$(".outlineWidth").append("<option>"+i+"</option>");
 	};
 
 	$(".toolbar li").click(function(){
@@ -443,6 +437,11 @@ $(document).ready(function(){
 						currentSelectedShape = shapes[i];
 						currentSelectedShape.setSelected(true);
 						currentControlPoint = shapeFound.point;
+
+						// set menu item values to match the selected shape
+						$(".select .outlineColor").val(currentSelectedShape.outlineColor);
+						$(".select .fillColor").val(currentSelectedShape.fillColor );
+						$(".select .outlineWidth").val(currentSelectedShape.outlineWidth);
 						break;
 					} 
 				}
@@ -552,5 +551,32 @@ $(document).ready(function(){
 			}
 		}
 	});
+
+	/*****************************************
+	Methods to change color and width for 
+	currently selected shape
+	*****************************************/	
+	$(".select .outlineColor").change(function(){
+		if (currentSelectedShape != null) {
+			currentSelectedShape.outlineColor = $(".select .outlineColor").val();
+			drawShapes();
+		}
+	});
+
+	$(".select .fillColor").change(function(){
+		if (currentSelectedShape != null) {
+			currentSelectedShape.fillColor = $(".select .fillColor").val();
+			drawShapes();
+		}
+	});
+
+	$(".select .outlineWidth").change(function(){
+		if (currentSelectedShape != null) {
+			currentSelectedShape.outlineWidth = $(".select .outlineWidth").val();
+			drawShapes();
+		}
+	});
+
+
 /***********End Canvas methods*************************/	
 });
