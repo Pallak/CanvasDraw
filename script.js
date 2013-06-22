@@ -358,7 +358,7 @@ var currentToolbarItem;
 var currentSelectedShape;
 var currentControlPoint;
 var clipboardShape;
-var coordsOnMouseDown;
+var prevCoords;
 
 $(document).ready(function(){
 	canvas = document.getElementById("canvas");
@@ -457,7 +457,7 @@ $(document).ready(function(){
 
 			case (toolbarItem.SELECT):
 			{
-				coordsOnMouseDown = getMouseCoords(e);
+				prevCoords = getMouseCoords(e);
 			}
 			case (toolbarItem.COPY):
 			{
@@ -598,13 +598,14 @@ $(document).ready(function(){
 								// Update position of shape using the displacement
 								// of the center
 								var center = currentSelectedShape.center();
-								xDisplacement = currentCoords.x - coordsOnMouseDown.x;
-								yDisplacement = currentCoords.y - coordsOnMouseDown.y;
+								xDisplacement = currentCoords.x - prevCoords.x;
+								yDisplacement = currentCoords.y - prevCoords.y;
 								currentSelectedShape.x += xDisplacement;
 								currentSelectedShape.y += yDisplacement;
-								// currentSelectedShape.xEnd += xDisplacement;
-								// currentSelectedShape.yEnd += yDisplacement;
-								console.log(xDisplacement + "     " + yDisplacement);
+								currentSelectedShape.xEnd += xDisplacement;
+								currentSelectedShape.yEnd += yDisplacement;
+								console.log(xDisplacement);
+								prevCoords = currentCoords;
 							}
 							break;
 
