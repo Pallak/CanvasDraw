@@ -1,6 +1,20 @@
-/*******************************
-Shape object methods
-*******************************/
+/*******************************************************************************
+ * CANVAS DRAW
+ * Author   : 
+ * Email    : 
+ * CDF      : 
+ * Student# : 
+
+ * Author   : Pallak Grewal
+ * Email    : pallak.grewal@mail.utoronto.ca
+ * CDF      : c3grewal
+ * Student# : 997293931
+ ******************************************************************************/
+
+
+/*******************************************************************************
+ * Shape object methods
+*******************************************************************************/
 
 // Types of shapes
 var shapeTypes = {
@@ -18,9 +32,9 @@ function Shape(canvas, x, y) {
 		this.outlineColor = $(".draw .outlineColor").val();
 		this.outlineWidth = $(".draw .outlineWidth").val();
 	}
-
 }
 
+// Select flag for shape
 Shape.prototype.selected = false;
 Shape.prototype.setSelected = function(value) { this.selected = value;}
 Shape.prototype.isSelected = function() { return this.selected;}
@@ -35,18 +49,16 @@ Shape.prototype.center = function() {
     };
 }
 
+// Removes all the shapes and updates the display
 function clearCanvas() {
-  // Remove all the shapes.
   shapes = [];
-
-  // Update the display.
   drawShapes();
 }
 
 // Size (side) for control points
 var pointSize = 10;
 
-// Function for drawing control points        
+// Draws control points for a given position on a shape       
 function drawPoint(x, y, color, size) {
     context.beginPath();            
     context.rect(x - size/2, y - size/2, size, size);
@@ -57,27 +69,26 @@ function drawPoint(x, y, color, size) {
     this.context.stroke(); 
 }
 
+// Clears the canvas, loops through the shapes array
+// and draws all the shapes
 function drawShapes() {
-  // Clear the canvas.
   context.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Go through all the shapes.
   for(var i=0; i<shapes.length; i++) {
     var shape = shapes[i];
     if (shape!=null) {
     	shape.draw();
 	}
 
-    // If select mode is on, display 
-    // control points for the shape
-    // at the start, end and center 
-    // positions
+    // If select mode is on, display control points for
+    // the shape at the start, end and center positions
+    if (currentToolbarItem == toolbarItem.SELECT || 
+    	currentToolbarItem == toolbarItem.COPY) {
 
-    // Select color for control points
-    // depending on whether shape is selected
-    var color = (shape.isSelected() != false) ?"#ff0000" :"#000000";
+	    // Select color for control points
+	    // depending on whether shape is selected
+	    var color = (shape.isSelected() != false) ?"#ff0000" :"#000000";
 
-    if (currentToolbarItem == toolbarItem.SELECT || currentToolbarItem == toolbarItem.COPY) {
 		drawPoint(shape.x, shape.y, color, pointSize);
 		drawPoint(shape.xEnd, shape.yEnd, color, pointSize);
 		center = shape.center();
@@ -86,10 +97,13 @@ function drawShapes() {
   }
 }
 
-function getDistance(startX, startY, endX, endY){
-	return (Math.floor(Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2))));
+// Returns the distance between two given points
+function getDistance(point1x, point1y, point2x, point2y){
+	return (Math.floor(Math.sqrt(Math.pow(point2x - point1x, 2) + 
+		Math.pow(point2y - point1y, 2))));
 }
 
+// Types of control points for shape selection
 var controlPoints = {
     START: 0,
     END: 1,
@@ -97,6 +111,7 @@ var controlPoints = {
     INTERIOR: 3
 };
 
+// TODO: does not work properly - fix
 // Hit test for the shape's control points
 Shape.prototype.inside = function(x, y) {
 	// Go through each control point to check 
@@ -111,7 +126,6 @@ Shape.prototype.inside = function(x, y) {
 
 	// // See if cursor point lies on the 
 	// // control point rectangle
-	// // TODO: does not work perfectly - fix
 	// if (startDistance <= (pointSize/2)) {
 	// 	return {
 	// 		result: true,
@@ -130,7 +144,8 @@ Shape.prototype.inside = function(x, y) {
 	// }
 
 	context.beginPath();            
-    context.rect(this.x - pointSize/2, this.y - pointSize/2, pointSize, pointSize);
+    context.rect(this.x - pointSize/2, this.y - pointSize/2, 
+    	pointSize, pointSize);
     var inside = this.context.isPointInPath(x,y);
     if (inside == true) {
     	return {
@@ -141,7 +156,8 @@ Shape.prototype.inside = function(x, y) {
 
 
 	context.beginPath();            
-    context.rect(this.xEnd - pointSize/2, this.yEnd - pointSize/2, pointSize, pointSize);
+    context.rect(this.xEnd - pointSize/2, this.yEnd - pointSize/2, 
+    	pointSize, pointSize);
     var inside = this.context.isPointInPath(x,y);
     if (inside == true) {
     	return {
@@ -152,7 +168,8 @@ Shape.prototype.inside = function(x, y) {
 
     var center = this.center();
 	context.beginPath();            
-    context.rect(center.x - pointSize/2, center.y - pointSize/2, pointSize, pointSize);
+    context.rect(center.x - pointSize/2, center.y - pointSize/2, 
+    	pointSize, pointSize);
     var inside = this.context.isPointInPath(x,y);
     if (inside == true) {
     	return {
@@ -167,11 +184,13 @@ Shape.prototype.inside = function(x, y) {
 	};
 }
 
-/*******************************
-Rectangle object methods
-Inherited from Shape
-*******************************/
 
+/*******************************************************************************
+ * Rectangle object methods
+ * Inherited from Shape
+*******************************************************************************/
+
+// Rectangle object constructor
 function Rectangle(canvas, x, y) {
 	Shape.call(this,canvas, x, y);
 	this.xEnd = x;
@@ -183,6 +202,7 @@ function Rectangle(canvas, x, y) {
 Rectangle.prototype = new Shape(); 
 Rectangle.prototype.constructor = Rectangle;
 
+// Draws the rectangle
 Rectangle.prototype.draw = function () {
     this.context.globalAlpha = 0.85;
     var xLength = this.xEnd - this.x;
@@ -196,32 +216,50 @@ Rectangle.prototype.draw = function () {
     this.context.stroke(); 
 };
 
-
+// Hit test for rectangle. First calls super for control points hit test
+// and then checks for a hit anywhere inside the shape.
 Rectangle.prototype.inside = function (x,y){
-    return Shape.prototype.inside.call(this, x, y);
-	// if(x > this.x && x < this.xEnd && y > this.y && y < this.yEnd) {
-	// 	return 1;
-	// } else {
-	// 	return 0;
-	// }
+	var hit = Shape.prototype.inside.call(this, x, y);
+	if(hit.result == true){
+		return hit;
+	} 
+
+	var startX = Math.min(this.x, this.xEnd);
+	var startY = Math.min(this.y, this.yEnd);
+	var endX = Math.max(this.x, this.xEnd);
+	var endY = Math.max(this.y, this.yEnd);
+
+	if (x >= startX && x <= endX && y >= startY && y <= endY) {
+    	return {
+			result: true,
+			point: controlPoints.INTERIOR
+		};
+	}
+
+	return {
+		result: false,
+		point: null
+	};
 }
 
-/*******************************
-Line object methods
-Inherited from Shape
-*******************************/
 
+/*******************************************************************************
+ * Line object methods
+ * Inherited from Shape
+*******************************************************************************/
+
+// Line object constructor
 function Line(canvas, x, y) {
 	Shape.call(this,canvas, x, y);
 	this.xEnd = x;
 	this.yEnd = y;
-	this.slope = (this.y - this.yEnd)/(this.x - this.xEnd);
 }
 
 // Clone(Shape.prototype);
 Line.prototype = new Shape(); 
 Line.prototype.constructor = Line;
 
+// Draws the line
 Line.prototype.draw = function () {
     this.context.globalAlpha = 0.85;
     this.context.beginPath();
@@ -232,11 +270,13 @@ Line.prototype.draw = function () {
     this.context.stroke();
 };
 
-/*******************************
-Circle object methods
-Inherited from Shape
-*******************************/
 
+/*******************************************************************************
+ * Circle object methods
+ * Inherited from Shape
+*******************************************************************************/
+
+// Circle object constructor
 function Circle(canvas, x, y) {
 	Shape.call(this,canvas, x, y);
 	this.xEnd = x;
@@ -248,6 +288,7 @@ function Circle(canvas, x, y) {
 Circle.prototype = new Shape(); 
 Circle.prototype.constructor = Circle;
 
+// Draws the circle
 Circle.prototype.draw = function () {
 	var center = this.center();
 	var radius = getDistance(this.x, this.y, center.x, center.y);
@@ -261,11 +302,17 @@ Circle.prototype.draw = function () {
     this.context.stroke();
 };
 
+// Hit test for circle. First calls super for control points hit test
+// and then checks for a hit anywhere inside the shape.
 Circle.prototype.inside = function(x,y){
 	var hit = Shape.prototype.inside.call(this, x, y);
 	if(hit.result == true){
 		return hit;
-	} else if (getDistance(x, y, this.x, this.y) <= getDistance(this.x, this.y, this.xEnd, this.yEnd)){
+	} 
+
+	var center = this.center();
+	if (getDistance(x, y, center.x, center.y) <= 
+		getDistance(center.x, center.y, this.xEnd, this.yEnd)){
     	return {
 			result: true,
 			point: controlPoints.INTERIOR
@@ -277,6 +324,10 @@ Circle.prototype.inside = function(x,y){
 		point: null
 	};
 }
+
+/*******************************************************************************
+ * Non - event driven methods
+*******************************************************************************/
 
 /*******************************
 Tool bar item names/types
@@ -346,10 +397,9 @@ function selectMenuItem(item){
 	currentShapeType = item.index();
 }
 
-
-/*******************************
-Global Variables
-*******************************/
+/*******************************************************************************
+ * Global variables
+*******************************************************************************/
 var shapes = [];
 var canvas;
 var context;
@@ -359,6 +409,10 @@ var currentSelectedShape;
 var currentControlPoint;
 var clipboardShape;
 var prevCoords;
+
+/*******************************************************************************
+ * Event driven methods
+*******************************************************************************/
 
 $(document).ready(function(){
 	canvas = document.getElementById("canvas");

@@ -1,3 +1,16 @@
+/*******************************************************************************
+ * CANVAS DRAW
+ * Author   : 
+ * Email    : 
+ * CDF      : 
+ * Student# : 
+
+ * Author   : Pallak Grewal
+ * Email    : pallak.grewal@mail.utoronto.ca
+ * CDF      : c3grewal
+ * Student# : 997293931
+ ******************************************************************************/
+
 body{
 	background-color: #57BEAD;
 	width: 1024px;
@@ -29,7 +42,7 @@ body{
 
 header{
 	background-color: black;
-	min-height: 10%;
+	min-height: 14%;
 }
 
 UL{
