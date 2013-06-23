@@ -111,38 +111,10 @@ var controlPoints = {
     INTERIOR: 3
 };
 
-// TODO: does not work properly - fix
 // Hit test for the shape's control points
 Shape.prototype.inside = function(x, y) {
 	// Go through each control point to check 
 	//if it got selected
-
-	// // Calculate distance between each control
-	// // point and position of cursor
-	// var startDistance = getDistance(this.x, this.y, x, y);
-	// var endDistance = getDistance(this.xEnd, this.yEnd, x, y);
-	// var center = this.center();
-	// var centerDistance = getDistance(center.x, center.y, x, y);
-
-	// // See if cursor point lies on the 
-	// // control point rectangle
-	// if (startDistance <= (pointSize/2)) {
-	// 	return {
-	// 		result: true,
-	// 		point: controlPoints.START
-	// 	};
-	// } else if(endDistance <= (pointSize/2)){	
-	// 	return {
-	// 		result: true,
-	// 		point: controlPoints.END
-	// 	};
-	// } else if(centerDistance <= (pointSize/2)){
-	// 	return {
-	// 		result: true,
-	// 		point: controlPoints.CENTER
-	// 	};
-	// }
-
 	context.beginPath();            
     context.rect(this.x - pointSize/2, this.y - pointSize/2, 
     	pointSize, pointSize);
