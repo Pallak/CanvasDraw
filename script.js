@@ -352,6 +352,12 @@ function selectItem (item){
 		showSelectedMenu(item);
 		currentToolbarItem = item.index();
 
+		// If "Copy" is selected and some shape was selected before,
+		// automatically copy that shape into clipboard
+		if (currentToolbarItem == toolbarItem.COPY) {
+			copySelectedShapeToClipboard();
+		}
+		
 		// Redraw on canvas in case selection is turned on/off
 		drawShapes();
 	}
@@ -405,6 +411,12 @@ function eraseShape(index){
 		shapes.splice(index,1);
 		drawShapes();
 	};
+}
+
+/***************************** Canvas methods *********************************/
+
+function copySelectedShapeToClipboard(){
+	clipboardShape = jQuery.extend(true, {}, shapes[currentSelectedShapeIndex]);
 }
 
 /*******************************************************************************
@@ -576,8 +588,7 @@ $(document).ready(function(){
 						// is selected
 						if(shapeFound.result == true && 
 							currentToolbarItem == toolbarItem.COPY){
-								clipboardShape = jQuery.extend(true, {}, 
-									shapes[shapes.length-1]);
+								copySelectedShapeToClipboard();
 						}
 						break;
 					} 
