@@ -358,6 +358,10 @@ function selectItem (item){
 		if (currentToolbarItem == toolbarItem.COPY && 
 			currentSelectedShapeIndex != -1) {
 			copySelectedShapeToClipboard();
+		// If "Select" is selected, update pickers to colors
+		// of selected shape
+		} else if(currentToolbarItem == toolbarItem.SELECT){
+			updateSelectMenuItems();
 		}
 
 		// Redraw on canvas in case selection is turned on/off
@@ -411,9 +415,13 @@ function addDropdownOptions(item, lastValue){
 
 // Updates the menu item values when a new shape is selected
 function updateSelectMenuItems(){
-	$(".select .outlineColor").val(currentSelectedShape.outlineColor);
-	$(".select .fillColor").val(currentSelectedShape.fillColor );
-	$(".select .outlineWidth").val(currentSelectedShape.outlineWidth);
+	if (currentSelectedShape != null) {
+		document.getElementById("fillPickerSelect").color.
+			fromString(currentSelectedShape.fillColor);
+		document.getElementById("outlinePickerSelect").color.
+			fromString(currentSelectedShape.outlineColor);
+		$(".select .outlineWidth").val(currentSelectedShape.outlineWidth);
+	}
 }
 
 // Removes the selected shape from the shapes array
@@ -571,7 +579,6 @@ $(document).ready(function(){
     }).mousedown(function(){
 		$(this).css("background-color", "#57BEAD");
     });
-
 
 /************************** End menu interactivity ****************************/
 
