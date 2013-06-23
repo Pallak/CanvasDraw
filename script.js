@@ -364,7 +364,7 @@ function selectItem (item){
 		drawShapes();
 	}
 	// If item is "clear canvas" treat it as a button
-	else{
+	else if (item.index()==toolbarItem.CLEARCANVAS){
 		clearCanvas();
 	}
 }
