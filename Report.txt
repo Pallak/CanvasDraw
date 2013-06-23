@@ -71,6 +71,15 @@ OBJECT TYPES
 	    -draw: takes in no parameters, displays the shape on the canvas based on its member variables
 	    -inside: takes in two parameters; x, y. Returns an object with a boolean, true if the x,y coordinates are inside the circle, otherwise false
 
+HOW IT WORKS
+	The application initially begins with an empty array of shapes. When the user creates a new shape by drawing it on the canvas,
+	that shape gets appended to the array of shapes. The shapes are then drawing in order of the array, and hence the shapes at the
+	end of the array get drawn last, and on top of all previous shapes. When select a shape, that shape's position in the array gets
+	moved to the last one, as a result the shape ends up being on the upmost layer. For moving the shape, the application tracks the
+	difference in coordiantes, and applies that changes to the x, y, xEnd, yEnd variables and then are re drawn. For copying, there is a global
+	variable that tracks the last copied shape, when the user is ready to paste the application makes calculations to find the size of the shape
+	and adjusts it's x, y, xEnd, yEnd variables accordingly.
+
 DESIGN DECISIONS:
 	- The line's colour depends on the outline colour and is not affected by the fill colour. It's width is controlled by outline width.
 	- A shape can be selected by pressing down on any of its control points. However, pressing down and dragging on a control point
