@@ -392,24 +392,35 @@ function addDropdownOptions(item, lastValue){
 	};
 }
 
+// Updates the menu item values when a new shape is selected
 function updateSelectMenuItems(){
 	$(".select .outlineColor").val(currentSelectedShape.outlineColor);
 	$(".select .fillColor").val(currentSelectedShape.fillColor );
 	$(".select .outlineWidth").val(currentSelectedShape.outlineWidth);
 }
 
+// Removes the selected shape from the shapes array
+function eraseShape(index){
+	if (index != -1 && index < shapes.length) {
+		shapes.splice(index,1);
+		drawShapes();
+	};
+}
+
 /*******************************************************************************
  * Global variables
 *******************************************************************************/
-//TODO - do we need to explain these? prevCoords?
 var shapes = [];
 var canvas;
 var context;
 var currentShapeType;
 var currentToolbarItem;
 var currentSelectedShape;
+var currentSelectedShapeIndex = -1;
 var currentControlPoint;
 var clipboardShape;
+
+// Saves previous coordinates for unit displacement (delta) calculation
 var prevCoords;
 
 /*******************************************************************************
@@ -476,6 +487,13 @@ $(document).ready(function(){
 			drawShapes();
 		}
 	});
+
+	// Erases selected shape
+	$(".select .erase").click(function(){
+		if (currentSelectedShape != null) {
+			eraseShape(currentSelectedShapeIndex);
+		};
+	});
 /************************** End menu interactivity ****************************/
 
 /******************************** Canvas methods ******************************/
@@ -528,6 +546,7 @@ $(document).ready(function(){
 					currentSelectedShape.setSelected(false);
 				}
 				currentSelectedShape = null;
+				currentSelectedShapeIndex = -1;
 				currentControlPoint = null;
 
 				// Perform hit test for all shapes starting from the 
@@ -545,7 +564,8 @@ $(document).ready(function(){
 						shapes.splice(i,1)
 						shapes.push(clonedShape);
 
-						currentSelectedShape = shapes[shapes.length-1];
+						currentSelectedShapeIndex = shapes.length-1;
+						currentSelectedShape = shapes[currentSelectedShapeIndex];
 						currentSelectedShape.setSelected(true);
 						currentControlPoint = shapeFound.point;
 
