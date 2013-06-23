@@ -2,3 +2,54 @@ Stuff we can mention in our report
 - event.which not working in firefox
 - what happens if you click down in the canvas and move the mouse out of the canvas area - it is the same for pixlr except when you move in (after clicking up outside) and click down, the shape disappears.
 - weird bug where you click too often and move too fast that it misses the click up event - may have something to do with the canvas getting "selected"
+
+USER MANUAL
+	DRAWING SHAPES
+	  -On the left menu select the "Draw" option
+	  -On the top menu select desired shape type
+	     -To change shape's Outline Color/ Fill Color/ Outline Width, click on the respective input box, a drop down menu will appear.
+	  -After selecting a shape, press the left mouse down on the canvas and draw to desired size, let go of left mouse button on having wanted size
+	
+	MOVING SHAPES
+	  -On the left menu select the "Select" option
+	  -For shapes other than "Line", select the shape by pressing the left mouse button down anywhere on the interior of desired shape
+	  -For the "Line" shape, select the shape by pressing the left mouse button down on center square
+	  -After selecting the shape, keep the left mouse button down and draw the shape to desired location
+	  -Let go left mouse button after achieving desired location
+
+	ALTERING SHAPES
+	  -On the left menu select the "Select" option
+	  -Every shape now has three squares
+	  -To alter the size of the shape, left click the mouse button and hold on of the corner squares
+	  -After obtaining desired alteration, release the left mouse button
+
+	COPYING SHAPES
+	  -On the left menu select the "Select" option
+	  -Left click on the shape you wish to copy
+	  -On the left menu select the "Copy" option
+	  -Shape is now ready to be pasted
+
+	PASTING SHAPES
+	  -After following the steps from COPYING SHAPES, a shape is ready to be copied
+	  -On the left menu select the "PASTE" option
+
+OBJECT TYPES
+	SHAPE
+	  -Is the super class of all shapes, contains x, y, xEnd, yEnd, isSelected variables
+	  FUNCTIONS
+	    -center: takes in no parameters, returns the center of the shape
+	    -setSelected: takes in boolean variable, value. Sets the shape's isSelected variable to input
+	RECTANGLE
+	  -Is a child class of Shape, contains same variables as object 'Shape'
+	  FUNCTIONS
+	    -draw: takes in no parameters, displays the shape on the canvas based on it's member variables
+	    -inside: takes in two parameters; x, y. Returns a boolean, true if the x,y coordinates are inside the rectangle, otherwise false
+	LINE
+	  -is a child class of Shape, contains same variables as object 'Shape'
+	  Functions:
+	    -draw: takes in no parameters, displays the shape on the canvas based on it's member variables
+	CIRCLE
+	  -Is a child class of Shape, contains same variables as object 'Shape'
+	  FUNCTIONS
+	    -draw: takes in no parameters, displays the shape on the canvas based on it's member variables
+	    -inside: takes in two parameters; x, y. Returns a boolean, true if the x,y coordinates are inside the circle, otherwise false
