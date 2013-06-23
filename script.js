@@ -426,10 +426,26 @@ function eraseShape(index){
 
 /***************************** Canvas methods *********************************/
 
+// Copies currently selected shape to clipboard
 function copySelectedShapeToClipboard(){
 	clipboardShape = jQuery.extend(true, {}, shapes[currentSelectedShapeIndex]);
 }
 
+// Methods to instantly change outline/fill colors for currently 
+// selected shape from options in the Select menu
+function updateOutlineColor(color) {
+	if (currentSelectedShape!=null){
+		currentSelectedShape.outlineColor = "#"+color.toString();
+		drawShapes();
+	}
+}
+
+function updateFillColor(color) {
+	if (currentSelectedShape!=null){
+		currentSelectedShape.fillColor = "#"+color.toString();
+		drawShapes();
+	}
+}
 /*******************************************************************************
  * Global variables
 *******************************************************************************/
@@ -533,22 +549,8 @@ $(document).ready(function(){
 		selectMenuItem($(this));
 	});
 
-	// Methods to change color and width for currently selected shape
+	// Method to change width for currently selected shape
 	// from options in the Select menu
-	$(".select .outlineColor").change(function(){
-		if (currentSelectedShape != null) {
-			currentSelectedShape.outlineColor = $(".select .outlineColor").val();
-			drawShapes();
-		}
-	});
-
-	$(".select .fillColor").change(function(){
-		if (currentSelectedShape != null) {
-			currentSelectedShape.fillColor = $(".select .fillColor").val();
-			drawShapes();
-		}
-	});
-
 	$(".select .outlineWidth").change(function(){
 		if (currentSelectedShape != null) {
 			currentSelectedShape.outlineWidth = $(".select .outlineWidth").val();
