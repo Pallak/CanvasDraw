@@ -344,7 +344,8 @@ var toolbarItem = {
 // First, removes the highlight from all toolbar items and then highlights 
 // the selected item
 function selectItem (item){
-	if(item.index()!=toolbarItem.CLEARCANVAS){
+	if(item.index()!=toolbarItem.CLEARCANVAS 
+		&& item.index()!=currentToolbarItem){
 		$(".toolbar li").each(function() {
 			$(this).css("background-color", "#047F6A");
 		});
@@ -377,8 +378,17 @@ function showSelectedMenu(item){
 	$(".menu div").each(function() {
 		$(this).hide();
 	});
-	var menuName = item.text();
+
+	var menuName = null;
+	$.each(toolbarItem , function(key, value) { 
+		if (value == item.index()) {
+			menuName = key.toLowerCase();
+		};
+	});
+
+	if (menuName!=null){
 	$("."+menuName).slideDown();
+	}
 }
 
 // Highlights selected menu item in the draw sub-menu (shapes menu)
@@ -464,6 +474,44 @@ $(document).ready(function(){
 		$(this).animate({width:165, duration:200}, "fast");
 	});
 
+
+	// Methods to select tool bar items
+	// using keyboard shortcuts (only works on Firefox)
+
+	// Flag for determining if control key is pressed down
+    var ctrlDown = false;
+
+    // Keycode for control key on Firefox 
+    var ctrlKey = 17;
+
+    // Charcode for keys on Firefox 
+    var cKey = 99;
+    var vKey = 118;
+
+    // Sets flag for control key
+    $(document).keydown(function(e)
+    {
+        if (e.keyCode == ctrlKey) ctrlDown = true;
+    }).keyup(function(e)
+    {
+        if (e.keyCode == ctrlKey) ctrlDown = false;
+    });
+
+    // Checks if c/v were pressed and released 
+    // while control was pressed down
+    $(document).keypress(function(e)
+    {
+    	var item = null;
+		if (ctrlDown && (e.charCode == cKey)) {
+    		item = toolbarItem.COPY;
+    	} else if (ctrlDown && (e.charCode == vKey)) {
+    		item = toolbarItem.PASTE;
+    	} 
+
+    	if (item!= null) {
+    		selectItem($(".toolbar li:eq("+item+")"));    
+    	}	
+    });
 /************************* End toolbar interactivity **************************/
 
 /************************** Begin menu interactivity **************************/
@@ -507,6 +555,7 @@ $(document).ready(function(){
 			eraseShape(currentSelectedShapeIndex);
 		};
 	});
+
 /************************** End menu interactivity ****************************/
 
 /******************************** Canvas methods ******************************/
