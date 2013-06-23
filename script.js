@@ -416,10 +416,14 @@ function addDropdownOptions(item, lastValue){
 // Updates the menu item values when a new shape is selected
 function updateSelectMenuItems(){
 	if (currentSelectedShape != null) {
-		document.getElementById("fillPickerSelect").color.
-			fromString(currentSelectedShape.fillColor);
+		if (currentSelectedShape.fillColor!=null) {
+			document.getElementById("fillPickerSelect").color.
+				fromString(currentSelectedShape.fillColor);
+		}
+		if (currentSelectedShape.outlineColor!=null) {
 		document.getElementById("outlinePickerSelect").color.
 			fromString(currentSelectedShape.outlineColor);
+		}
 		$(".select .outlineWidth").val(currentSelectedShape.outlineWidth);
 	}
 }
