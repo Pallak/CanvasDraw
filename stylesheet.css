@@ -66,6 +66,11 @@ UL li{
 	margin: 5px;
 }
 
+.menu>div>UL>li:first-child{
+	background-color: #015245;
+	color: #F0E9EB;
+}
+
 .shapes{
 	display: inline-block;
 }
