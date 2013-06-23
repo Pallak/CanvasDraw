@@ -354,10 +354,11 @@ function selectItem (item){
 
 		// If "Copy" is selected and some shape was selected before,
 		// automatically copy that shape into clipboard
-		if (currentToolbarItem == toolbarItem.COPY) {
+		if (currentToolbarItem == toolbarItem.COPY && 
+			currentSelectedShapeIndex != -1) {
 			copySelectedShapeToClipboard();
 		}
-		
+
 		// Redraw on canvas in case selection is turned on/off
 		drawShapes();
 	}
@@ -608,20 +609,14 @@ $(document).ready(function(){
 					
 					// Calculate coordinates for new shape
 					var center = clipboardShape.center();
-					var x = Math.min(clipboardShape.x, clipboardShape.xEnd);
-					var y = Math.min(clipboardShape.y, clipboardShape.yEnd);
-					var xEnd = Math.max(clipboardShape.x, clipboardShape.xEnd);
-					var yEnd = Math.max(clipboardShape.y, clipboardShape.yEnd);
 
-					var xDisplacement = center.x - x;
-					var yDisplacement = center.y - y;
-					var xEndDisplacement = xEnd - center.x;
-					var yEndDisplacement = yEnd - center.y;
+					var xDisplacement = center.x - clipboardShape.x;
+					var yDisplacement = center.y - clipboardShape.y;
 
 					newShape.x = currentCoords.x - xDisplacement;
 					newShape.y = currentCoords.y - yDisplacement;
-					newShape.xEnd = currentCoords.x + xEndDisplacement;
-					newShape.yEnd = currentCoords.y + yEndDisplacement;
+					newShape.xEnd = currentCoords.x + xDisplacement;
+					newShape.yEnd = currentCoords.y + yDisplacement;
 					newShape.setSelected(false);
 
 					// Add it to the shapes array
