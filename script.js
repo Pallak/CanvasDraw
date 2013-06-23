@@ -466,6 +466,13 @@ $(document).ready(function(){
 	$(".toolbar li").click(function(){
 		selectItem($(this));
 	});
+
+	// Hightlights/unhighlights clear canvas button on mouse down/up/out
+    $(".toolbar li").last().bind("mouseup mouseout", function(){
+    	$(this).css("background-color", "#047F6A");
+    }).mousedown(function(){
+		$(this).css("background-color", "#57BEAD");
+    });
 	
 	// Animates toolbar item when hovering over it
 	$(".toolbar ul li").hover(function(){
@@ -555,6 +562,14 @@ $(document).ready(function(){
 			eraseShape(currentSelectedShapeIndex);
 		};
 	});
+
+	// Hightlights/unhighlights erase button on mouse down/up/out
+    $(".erase").bind("mouseup mouseout", function(){
+    	$(this).css("background-color", "#047F6A");
+    }).mousedown(function(){
+		$(this).css("background-color", "#57BEAD");
+    });
+
 
 /************************** End menu interactivity ****************************/
 
