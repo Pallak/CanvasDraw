@@ -63,10 +63,10 @@ function drawPoint(x, y, color, size) {
     context.beginPath();            
     context.rect(x - size/2, y - size/2, size, size);
     context.fillStyle = color;
-    this.context.strokeStyle = "black";
-    this.context.lineWidth = 1;
+    context.strokeStyle = "black";
+    context.lineWidth = 1;
     context.fill();
-    this.context.stroke(); 
+    context.stroke(); 
 }
 
 // Clears the canvas, loops through the shapes array
@@ -146,7 +146,7 @@ Shape.prototype.inside = function(x, y) {
 	context.beginPath();            
     context.rect(this.x - pointSize/2, this.y - pointSize/2, 
     	pointSize, pointSize);
-    var inside = this.context.isPointInPath(x,y);
+    var inside = context.isPointInPath(x,y);
     if (inside == true) {
     	return {
 			result: true,
@@ -158,7 +158,7 @@ Shape.prototype.inside = function(x, y) {
 	context.beginPath();            
     context.rect(this.xEnd - pointSize/2, this.yEnd - pointSize/2, 
     	pointSize, pointSize);
-    var inside = this.context.isPointInPath(x,y);
+    var inside = context.isPointInPath(x,y);
     if (inside == true) {
     	return {
 			result: true,
@@ -170,7 +170,7 @@ Shape.prototype.inside = function(x, y) {
 	context.beginPath();            
     context.rect(center.x - pointSize/2, center.y - pointSize/2, 
     	pointSize, pointSize);
-    var inside = this.context.isPointInPath(x,y);
+    var inside = context.isPointInPath(x,y);
     if (inside == true) {
     	return {
 			result: true,
@@ -329,10 +329,9 @@ Circle.prototype.inside = function(x,y){
  * Non - event driven methods
 *******************************************************************************/
 
-/*******************************
-Tool bar item names/types
-for readability
-*******************************/
+/************************** Toolbar methods ***********************************/
+
+// Tool bar item names/types for readability
 var toolbarItem = {
     DRAW: 0,
     SELECT: 1,
@@ -341,27 +340,10 @@ var toolbarItem = {
     CLEARCANVAS: 4
 };
 
-/*******************************
-Adding selected menu on the top.
-Hides all the menus and then 
-shows the selected one
-*******************************/
-function showSelectedMenu(item){
-	$(".menu div").each(function() {
-		$(this).hide();
-	});
-	var menuName = item.text();
-	$("."+menuName).slideDown();
-}
-
-
-/*******************************
-Highlighting toolbar items.
-Removes highlight from all menu 
-items and then highlights the 
-selected item
-*******************************/
-function selectItem (item) {
+// Highlights selected toolbar item and displays the relevant menu
+// First, removes the highlight from all toolbar items and then highlights 
+// the selected item
+function selectItem (item){
 	if(item.index()!=toolbarItem.CLEARCANVAS){
 		$(".toolbar li").each(function() {
 			$(this).css("background-color", "#047F6A");
@@ -370,25 +352,31 @@ function selectItem (item) {
 		showSelectedMenu(item);
 		currentToolbarItem = item.index();
 
-		// Redraw on canvas in case select is 
-		// turned on/off
+		// Redraw on canvas in case selection is turned on/off
 		drawShapes();
 	}
-	/* If item is "clear canvas" treat it 
-	as a button*/
+	// If item is "clear canvas" treat it as a button
 	else{
 		clearCanvas();
-		}
+	}
 }
 
-/*******************************
-Highlighting certain menu items.
-Removes highlight from all menu 
-items and then highlights the 
-selected item.
-Currently only used for shapes menu,
-which is part of the draw menu.
-*******************************/
+
+/***************************** Menu methods ***********************************/
+
+// Displays the selected menu.
+// First, hides all the menus and then shows the selected one
+function showSelectedMenu(item){
+	$(".menu div").each(function() {
+		$(this).hide();
+	});
+	var menuName = item.text();
+	$("."+menuName).slideDown();
+}
+
+// Highlights selected menu item in the draw sub-menu (shapes menu)
+// First, removes the highlight from all menu items and then highlights 
+// the selected item
 function selectMenuItem(item){
 	$(".shapes li").each(function() {
 		$(this).css("background-color", "#047F6A");
@@ -397,9 +385,23 @@ function selectMenuItem(item){
 	currentShapeType = item.index();
 }
 
+// Adds numerical options starting from 1 to the dropdown passed in
+function addDropdownOptions(item, lastValue){
+	for (var i = 1; i <= lastValue; i++) {
+		item.append("<option>"+i+"</option>");
+	};
+}
+
+function updateSelectMenuItems(){
+	$(".select .outlineColor").val(currentSelectedShape.outlineColor);
+	$(".select .fillColor").val(currentSelectedShape.fillColor );
+	$(".select .outlineWidth").val(currentSelectedShape.outlineWidth);
+}
+
 /*******************************************************************************
  * Global variables
 *******************************************************************************/
+//TODO - do we need to explain these? prevCoords?
 var shapes = [];
 var canvas;
 var context;
@@ -422,275 +424,38 @@ $(document).ready(function(){
  	// until the window is redrawn
  	context.stroke();
 
-/***************Begin toolbar interactivity**************/
+/*********************** Begin toolbar interactivity **************************/
+	// Select first toolbar item by default when page loads
 	selectItem($(".toolbar li").first());
 
-	/*******************************
-	Adding options to the outline width 
-	drop down menu
-	TODO: change dropdown to something 
-	nicer.
-	********************************/
-	for (var i = 1; i <= 20; i++) {
-		$(".outlineWidth").append("<option>"+i+"</option>");
-	};
-
+	// Handles toolbar item click
 	$(".toolbar li").click(function(){
 		selectItem($(this));
 	});
 	
-	/*******************************
-	Animate toolbar when hovering 
-	over any item in menu
-	********************************/
+	// Animates toolbar item when hovering over it
 	$(".toolbar ul li").hover(function(){
 		$(this).animate({width:250, duration:200}, "fast");
 	},function(){
 		$(this).animate({width:165, duration:200}, "fast");
 	});
 
-/***************End toolbar interactivity**************/
+/************************* End toolbar interactivity **************************/
 
-/***************Begin menu interactivity***************/
-	/*******************************
-	DRAW MENU
-	********************************/
+/************************** Begin menu interactivity **************************/
+	// Populate outline width dropdown options in menu
+	addDropdownOptions($(".outlineWidth"), 20);
 
-	// Line selected by default
+	// Select line by default for the draw sub-menu (shapes menu)
 	selectMenuItem($(".shapes li").first());
 
+	// Selects clicked menu item in the draw sub-menu (shapes menu)
 	$(".shapes li").click(function(){
 		selectMenuItem($(this));
 	});
 
-/***************End menu interactivity*****************/
-
-/***************Canvas methods*************************/
-	/*******************************
-	Get the mouse coordinates with 
-	respect to the origin of the 
-	canvas 
-	********************************/
-	function getMouseCoords(event){
-		var canvasOffset = $("#canvas").offset();
-		return{
-	 		x: event.pageX - Math.floor(canvasOffset.left),
-	 		y: event.pageY - Math.floor(canvasOffset.top)
-	 	};
-	}
-
-	// Current mouse coords
-	var currentCoords;
-	var shape;
-
-	// Bool to indicate if we need to create 
-	// a new shape using new
-	var needNewShape = 1;
-
-	// Bool to indicate whether the mouse 
-	// button is pressed down
-	var isMouseDown = 0;
-
-	// Functions to set the mouse pressed flag
-	$("#canvas").mouseup(function(e) {
-		// use switch case for different toolbar items like in mousemove
-		isMouseDown=0;
-		needNewShape = 1;
-	});
-
-	$("#canvas").mousedown(function(e) {
-		// use switch case for different toolbar items like in mousemove
-		isMouseDown = 1;
-		// console.log(getMouseCoords(e).x + " " + getMouseCoords(e).y);
-
-		switch (currentToolbarItem) {
-			case (toolbarItem.DRAW):
-			{
-			} 
-			break;
-
-			case (toolbarItem.SELECT):
-			{
-				prevCoords = getMouseCoords(e);
-			}
-			case (toolbarItem.COPY):
-			{
-				var shapeFound = false;
-				
-				// Unselect last selected shape 
-				if (currentSelectedShape != null) {
-					currentSelectedShape.setSelected(false);
-				}
-				currentSelectedShape = null;
-				currentControlPoint = null;
-				clipboardShape = null;
-
-				// Perform hit test for all shapes starting from the 
-				// last index (from front to back)
-				// Break at first(front-most) shape found
-				currentCoords = getMouseCoords(e);
-				for(i = shapes.length - 1; i >= 0; i-- ){
-					shapeFound = shapes[i].inside(currentCoords.x,currentCoords.y);
-					if (shapeFound.result == true) {
-						var clonedShape = jQuery.extend(true, {}, shapes[i]);
-						shapes.splice(i,1)
-						shapes.push(clonedShape);
-
-						currentSelectedShape = shapes[shapes.length-1];
-						currentSelectedShape.setSelected(true);
-						currentControlPoint = shapeFound.point;
-
-						// set menu item values to match the selected shape
-						$(".select .outlineColor").val(currentSelectedShape.outlineColor);
-						$(".select .fillColor").val(currentSelectedShape.fillColor );
-						$(".select .outlineWidth").val(currentSelectedShape.outlineWidth);
-						if( shapeFound.result == true && currentToolbarItem == toolbarItem.COPY){
-							clipboardShape = jQuery.extend(true, {}, shapes[shapes.length-1]);
-						}
-						break;
-					} 
-				}
-				// Need to draw to show selected/unselected shapes instantly
-				drawShapes();
-			}
-			break;
-
-			case(toolbarItem.PASTE):
-			{
-				if (clipboardShape!=null){
-					currentCoords = getMouseCoords(e);
-					var newShape = jQuery.extend(true, {}, clipboardShape);
-					var center = clipboardShape.center();
-					
-					var x = Math.min(clipboardShape.x, clipboardShape.xEnd);
-					var y = Math.min(clipboardShape.y, clipboardShape.yEnd);
-					var xEnd = Math.max(clipboardShape.x, clipboardShape.xEnd);
-					var yEnd = Math.max(clipboardShape.y, clipboardShape.yEnd);
-
-					var xDisplacement = center.x - x;
-					var yDisplacement = center.y - y;
-					var xEndDisplacement = xEnd - center.x;
-					var yEndDisplacement = yEnd - center.y;
-
-					newShape.x = currentCoords.x - xDisplacement;
-					newShape.y = currentCoords.y - yDisplacement;
-					newShape.xEnd = currentCoords.x + xEndDisplacement;
-					newShape.yEnd = currentCoords.y + yEndDisplacement;
-					newShape.setSelected(false);
-					shapes.push(newShape);
-					drawShapes();
-				}
-			}
-			break;
-
-			default:
-			// Do not add any console logs/alerts here unless for debugging
-			// Will get triggered infinitely
-		}
-	});
-
-	$("#canvas").mouseout(function(e) {
-		$("#canvas").trigger("mouseup");
-	});
-
-	/*****************************************
-	This function draws a shape while mouse is 
-	moving and pressed down. On mouse up event,
-	the shape is added to the array of shapes.
-	*****************************************/
-	$("#canvas").mousemove(function(e){
-		if(isMouseDown)
-		{
-			switch (currentToolbarItem) {
-				case (toolbarItem.DRAW):
-				{
-		  			context.clearRect(0, 0, canvas.width, canvas.height);
-					currentCoords = getMouseCoords(e);
-				
-					if(needNewShape == 1){
-						switch(currentShapeType){
-							case(shapeTypes.LINE):
-								shape = new Line(canvas, currentCoords.x, currentCoords.y);
-							break;
-							case(shapeTypes.CIRCLE):
-								shape = new Circle(canvas, currentCoords.x, currentCoords.y);
-							break;
-							case(shapeTypes.RECTANGLE):
-								shape = new Rectangle(canvas, currentCoords.x, currentCoords.y);
-							break;
-							default:
-							alert("Some error occured");
-						}
-						needNewShape = 0;		
-					} else{
-						shapes.pop();
-					}
-		
-					shape.xEnd = currentCoords.x;
-					shape.yEnd = currentCoords.y;
-					shapes.push(shape);
-					drawShapes();
-				} 
-				break;
-
-				case (toolbarItem.SELECT):
-				{
-					if (currentSelectedShape != null && currentControlPoint!= null) {
-						currentCoords = getMouseCoords(e);
-						switch(currentControlPoint){
-							case(controlPoints.START):
-							{
-								// update start point
-								currentSelectedShape.x = currentCoords.x;
-								currentSelectedShape.y = currentCoords.y;
-							}
-							break;
-
-							case(controlPoints.CENTER):
-							case(controlPoints.INTERIOR):
-							{
-								// Update position of shape using the displacement
-								// of the center
-								var center = currentSelectedShape.center();
-								xDisplacement = currentCoords.x - prevCoords.x;
-								yDisplacement = currentCoords.y - prevCoords.y;
-								currentSelectedShape.x += xDisplacement;
-								currentSelectedShape.y += yDisplacement;
-								currentSelectedShape.xEnd += xDisplacement;
-								currentSelectedShape.yEnd += yDisplacement;
-								console.log(xDisplacement);
-								prevCoords = currentCoords;
-							}
-							break;
-
-							case(controlPoints.END):
-							{
-								// update end point
-								currentSelectedShape.xEnd = currentCoords.x;
-								currentSelectedShape.yEnd = currentCoords.y;
-							}
-							break;
-
-							default:
-							// do nothing
-						}
-
-						drawShapes();
-					};
-				}
-				break;
-
-				default:
-				// Do not add any console logs/alerts here unless for debugging
-				// Will get triggered infinitely
-			}
-		}
-	});
-
-	/*****************************************
-	Methods to change color and width for 
-	currently selected shape
-	*****************************************/	
+	// Methods to change color and width for currently selected shape
+	// from options in the Select menu
 	$(".select .outlineColor").change(function(){
 		if (currentSelectedShape != null) {
 			currentSelectedShape.outlineColor = $(".select .outlineColor").val();
@@ -711,7 +476,235 @@ $(document).ready(function(){
 			drawShapes();
 		}
 	});
+/************************** End menu interactivity ****************************/
 
+/******************************** Canvas methods ******************************/
+	// Gets the mouse coordinates with respect to the origin of the canvas 
+	function getMouseCoords(event){
+		var canvasOffset = $("#canvas").offset();
+		return{
+	 		x: event.pageX - Math.floor(canvasOffset.left),
+	 		y: event.pageY - Math.floor(canvasOffset.top)
+	 	};
+	}
 
-/***********End Canvas methods*************************/	
+	// Current mouse coordinates
+	var currentCoords;
+
+	// Variable used for making new shapes on the canvas
+	// Needed to keep track of current shape being drawn 
+	// when toolbarItem.DRAW is selected
+	var shape;
+
+	// Flag to indicate if we need to create a new shape using new
+	var needNewShape = 1;
+
+	// Flag to indicate whether the mouse button is pressed down
+	var isMouseDown = 0;
+
+	// Handles mouse up on canvas
+	$("#canvas").mouseup(function(e) {
+		isMouseDown=0;
+		needNewShape = 1;
+	});
+
+	// Handles mouse down on canvas
+	$("#canvas").mousedown(function(e) {
+		isMouseDown = 1;
+
+		switch (currentToolbarItem) {
+			case (toolbarItem.SELECT):
+			{
+				prevCoords = getMouseCoords(e);
+			}
+			// no break because rest of code is common with toolbarItem.COPY
+
+			case (toolbarItem.COPY):
+			{
+				var shapeFound = false;
+				
+				// Unselect last selected shape and reset variables
+				if (currentSelectedShape != null) {
+					currentSelectedShape.setSelected(false);
+				}
+				currentSelectedShape = null;
+				currentControlPoint = null;
+
+				// Perform hit test for all shapes starting from the 
+				// last index (from front to back)
+				// Break at first(front-most) shape found
+				// Selected shape becomes top most shape
+				currentCoords = getMouseCoords(e);
+				for(i = shapes.length - 1; i >= 0; i-- ){
+					shapeFound = shapes[i].inside(currentCoords.x,
+						currentCoords.y);
+
+					// Selected shape is pushed to the front of the shapes array
+					if (shapeFound.result == true) {
+						var clonedShape = jQuery.extend(true, {}, shapes[i]);
+						shapes.splice(i,1)
+						shapes.push(clonedShape);
+
+						currentSelectedShape = shapes[shapes.length-1];
+						currentSelectedShape.setSelected(true);
+						currentControlPoint = shapeFound.point;
+
+						// set menu item values to match the selected shape
+						updateSelectMenuItems();
+
+						// Copy shape to clipboard if toolbarItem.COPY 
+						// is selected
+						if(shapeFound.result == true && 
+							currentToolbarItem == toolbarItem.COPY){
+								clipboardShape = jQuery.extend(true, {}, 
+									shapes[shapes.length-1]);
+						}
+						break;
+					} 
+				}
+
+				// Need to draw to show selected/unselected shapes instantly
+				drawShapes();
+			}
+			break;
+
+			case(toolbarItem.PASTE):
+			{
+				if (clipboardShape!=null){
+					// Make new shape from clipboard shape
+					currentCoords = getMouseCoords(e);
+					var newShape = jQuery.extend(true, {}, clipboardShape);
+					
+					// Calculate coordinates for new shape
+					var center = clipboardShape.center();
+					var x = Math.min(clipboardShape.x, clipboardShape.xEnd);
+					var y = Math.min(clipboardShape.y, clipboardShape.yEnd);
+					var xEnd = Math.max(clipboardShape.x, clipboardShape.xEnd);
+					var yEnd = Math.max(clipboardShape.y, clipboardShape.yEnd);
+
+					var xDisplacement = center.x - x;
+					var yDisplacement = center.y - y;
+					var xEndDisplacement = xEnd - center.x;
+					var yEndDisplacement = yEnd - center.y;
+
+					newShape.x = currentCoords.x - xDisplacement;
+					newShape.y = currentCoords.y - yDisplacement;
+					newShape.xEnd = currentCoords.x + xEndDisplacement;
+					newShape.yEnd = currentCoords.y + yEndDisplacement;
+					newShape.setSelected(false);
+
+					// Add it to the shapes array
+					shapes.push(newShape);
+					drawShapes();
+				}
+			}
+			break;
+
+			default:
+			// Do not add any console logs/alerts here unless for debugging
+			// Will get triggered infinitely
+		}
+	});
+
+	// Handles mouse out on canvas
+	$("#canvas").mouseout(function(e) {
+		$("#canvas").trigger("mouseup");
+	});
+
+	// Handles mouse move on canvas
+	$("#canvas").mousemove(function(e){
+		if(isMouseDown)
+		{
+			switch (currentToolbarItem) {
+				case (toolbarItem.DRAW):
+				{
+					currentCoords = getMouseCoords(e);
+					
+					// Create and push a new shape to shapes array 
+					// only if needed (ie on mouse down)
+					if(needNewShape == 1){
+						switch(currentShapeType){
+							case(shapeTypes.LINE):
+								shape = new Line(canvas, currentCoords.x, 
+									currentCoords.y);
+							break;
+							case(shapeTypes.CIRCLE):
+								shape = new Circle(canvas, currentCoords.x, 
+									currentCoords.y);
+							break;
+							case(shapeTypes.RECTANGLE):
+								shape = new Rectangle(canvas, currentCoords.x, 
+									currentCoords.y);
+							break;
+							default:
+								alert("Some error occurred");
+						}
+
+						shapes.push(shape);
+						needNewShape = 0;		
+					} 
+
+					// Adjust end coordinates for shape being drawn
+					shape.xEnd = currentCoords.x;
+					shape.yEnd = currentCoords.y;
+
+					drawShapes();
+				} 
+				break;
+
+				case (toolbarItem.SELECT):
+				{
+					if (currentSelectedShape != null && currentControlPoint!= null) {
+						currentCoords = getMouseCoords(e);
+
+						// Update shape coordinates depending on type of
+						// control point
+						switch(currentControlPoint){
+							case(controlPoints.START):
+							{
+								// Update start point for selected shape
+								currentSelectedShape.x = currentCoords.x;
+								currentSelectedShape.y = currentCoords.y;
+							}
+							break;
+
+							case(controlPoints.CENTER):
+							case(controlPoints.INTERIOR):
+							{
+								// Update position for selected shape
+								var center = currentSelectedShape.center();
+								xDisplacement = currentCoords.x - prevCoords.x;
+								yDisplacement = currentCoords.y - prevCoords.y;
+								currentSelectedShape.x += xDisplacement;
+								currentSelectedShape.y += yDisplacement;
+								currentSelectedShape.xEnd += xDisplacement;
+								currentSelectedShape.yEnd += yDisplacement;
+								prevCoords = currentCoords;
+							}
+							break;
+
+							case(controlPoints.END):
+							{
+								// Update end point for selected shape
+								currentSelectedShape.xEnd = currentCoords.x;
+								currentSelectedShape.yEnd = currentCoords.y;
+							}
+							break;
+
+							default:
+							// do nothing
+						}
+
+						drawShapes();
+					};
+				}
+				break;
+
+				default:
+				// Do not add any console logs/alerts here unless for debugging
+				// Will get triggered infinitely
+			}
+		}
+	});
+/*****************************End Canvas methods*******************************/	
 });
