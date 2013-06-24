@@ -12,7 +12,7 @@
  ******************************************************************************/
 
 USER MANUAL
-  DRAWING SHAPES
+ 	DRAWING SHAPES
 	  -On the left menu select the "Draw" option
 	  -On the top menu select desired shape type
 	  	-To change shape's Outline Color/ Fill Color/ Outline Width, click on the respective input box, a drop down menu will appear.
