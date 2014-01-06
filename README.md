@@ -56,12 +56,11 @@ points trigger alteration of the shape.
 - On selecting a shape in "Select" mode, the selected shape's colors and outline width are instantly displayed in the color pickers and the
 outline width field. Likewise, changing any of the colors in the color pickers(on mouse down and move) is instantly reflected by the
 selected shape. The shape's outline width is changed on clicking a value in the dropdown menu.
-- The selected shape is retained even if you change the menu option on the left menu. It is only set to null if you click on the canvas 
-in "Select"/"Copy" mode. 
+- The selected shape is retained even if you change the menu option on the left menu. 
 - The "Select" and "Copy" mode share the selected shape. Changing the selected shape in either mode selects the shape and brings it to the 
 front and the selection is reflected in both modes.
 - If a shape is selected in "Select" mode and then "Copy" is clicked on the left menu, the shape is automatically copied to the clipboard.
 - The shape copied to clipboard is retained even if you click on the canvas in "Select"/"Copy" mode. It is only changed if you select 
 another shape.
 - Once "Paste" is selected from the left menu, the clipboard shape can be pasted as many times as desired. 
-- The "Copy"/"Paste" menus can be selected by using the keyboard shortcuts "Ctrl + c/v".
+- The "Copy"/"Paste" menus can be selected by using the keyboard shortcuts "Ctrl + c/v". (Firefox only)
